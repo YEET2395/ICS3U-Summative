@@ -15,29 +15,30 @@ grey = (220, 220, 220)
 lightBlue = (204, 255, 255)
 red = (255, 0, 0)
 green = (0, 255, 0)
-treeGreen=(74, 153, 58)
+treeGreen = (74, 153, 58)
 
 running = True
 startLoadingScreen = False
 inMenu = True
-collideMenuStart=False
-collideMenuInstruction=False
-collideMenuQuit=False
-collideMenuSetting=False
+collideMenuStart = False
+collideMenuInstruction = False
+collideMenuQuit = False
+collideMenuSetting = False
 
 global pages
-pages = 0 # 0 For Menu, 1 for Game, 2 for Instruction, 3 for Setting
+pages = 0  # 0 For Menu, 1 for Game, 2 for Settings, 3 for Instructions
 
 # Fonts
 doto = "Fonts/Doto/Doto-VariableFont_ROND,wght.ttf"
 pixelify = "Fonts/Pixelify_Sans/PixelifySans-VariableFont_wght.ttf"
 franklin = "Fonts/Franklin_Gothic_Medium/OPTIFranklinGothic-Medium.otf"
 
-menuTitleText=Rect(300,165,400,70)
-menuGameStart=Rect(300,265,400,70)
-menuInstruction=Rect(300,365,400,70)
-menuSetting=Rect(300,465,400,70)
-menuQuit=Rect(300,565,400,70)
+menuTitleText = Rect(300, 165, 400, 70)
+menuGameStart = Rect(300, 265, 400, 70)
+menuSetting = Rect(300, 365, 400, 70)
+menuInstruction = Rect(300, 465, 400, 70)
+menuQuit = Rect(300, 565, 400, 70)
+
 
 # def drawPixelBorder(aRect, pixelSize=7, color=black):
 #     x, y, w, h = aRect
@@ -66,7 +67,7 @@ menuQuit=Rect(300,565,400,70)
 #         offset = pattern[(i // pixelSize) % len(pattern)]
 #         draw.rect(screen, color, (x + w - pixelSize + offset, y + i, pixelSize, pixelSize))
 
-def drawBorderRect(aRectangle,aColorRect=white,aColorBorder=black,pixel=False,pixelSize=3):
+def drawBorderRect(aRectangle, aColorRect=white, aColorBorder=black, pixel=False, pixelSize=3):
     draw.rect(screen, aColorRect, aRectangle)
     if pixel:
         # drawPixelBorder(aRectangle,pixelSize,aColorBorder)
@@ -82,16 +83,20 @@ def textRender(aText, loc, aFontSize=20, aFontColor=black, fontType=pixelify, si
     else:
         return font.Font(fontType, aFontSize).render(aText, True, aFontColor).get_size()
 
-def centerTextOnRect(aText,aRect,aFontSize=20,aFontColor=black,fontType=pixelify):
-    txtRender=font.Font(fontType, aFontSize).render(aText, True, aFontColor)
+
+def centerTextOnRect(aText, aRect, aFontSize=20, aFontColor=black, fontType=pixelify):
+    txtRender = font.Font(fontType, aFontSize).render(aText, True, aFontColor)
     screen.blit(txtRender, txtRender.get_rect(center=aRect.center))
 
-def drawTextAndRect(aText,aRect,aFontSize=20,aFontColor=black,fontType=pixelify,aColorRect=white,aColorBorder=black,border=True):
+
+def drawTextAndRect(aText, aRect, aFontSize=20, aFontColor=black, fontType=pixelify, aColorRect=white,
+                    aColorBorder=black, border=True):
     if border:
-        drawBorderRect(aRect,aColorRect,aColorBorder)
+        drawBorderRect(aRect, aColorRect, aColorBorder)
     else:
-        draw.rect(screen,aColorRect,aRect)
-    centerTextOnRect(aText,aRect,aFontSize,aFontColor,fontType)
+        draw.rect(screen, aColorRect, aRect)
+    centerTextOnRect(aText, aRect, aFontSize, aFontColor, fontType)
+
 
 def LoadingScreenStart(isDisplayed):
     if not isDisplayed:
@@ -114,61 +119,69 @@ def menu():
     global pages
     screen.fill(white)
     # drawBorderRect(menuGameStart)
-    centerTextOnRect("Forest Invaders",menuTitleText,aFontSize=80,aFontColor=treeGreen)
-    drawTextAndRect("Start!",menuGameStart,aFontSize=40,fontType=doto,aColorRect=treeGreen,aFontColor=white,border=False)
-    drawTextAndRect("Instructions",menuInstruction,aFontSize=40,fontType=doto,aColorRect=treeGreen,aFontColor=white,border=False)
-    drawTextAndRect("Quit",menuQuit,aFontSize=40,fontType=doto,aColorRect=treeGreen,aFontColor=white,border=False)
+    centerTextOnRect("Forest Invaders", menuTitleText, aFontSize=80, aFontColor=treeGreen)
+    drawTextAndRect("Start!", menuGameStart, aFontSize=40, fontType=doto, aColorRect=treeGreen, aFontColor=white,
+                    border=False)
+    drawTextAndRect("Settings", menuSetting, aFontSize=40, fontType=doto, aColorRect=treeGreen,
+                    aFontColor=white, border=False)
+    drawTextAndRect("Instructions", menuInstruction, aFontSize=40, fontType=doto, aColorRect=treeGreen,
+                    aFontColor=white, border=False)
+    drawTextAndRect("Quit", menuQuit, aFontSize=40, fontType=doto, aColorRect=treeGreen, aFontColor=white, border=False)
     if collideMenuStart:
-        draw.rect(screen,black,menuGameStart,3)
+        draw.rect(screen, black, menuGameStart, 3)
+    if collideMenuSetting:
+        draw.rect(screen, black, menuSetting, 3)
     if collideMenuInstruction:
         draw.rect(screen, black, menuInstruction, 3)
     if collideMenuQuit:
-        draw.rect(screen,black,menuQuit,3)
+        draw.rect(screen, black, menuQuit, 3)
 
 def game():
     screen.fill(treeGreen)
+
 
 while running:
     startLoadingScreen = LoadingScreenStart(startLoadingScreen)
     for e in event.get():
         if e.type == QUIT:
             running = False
-        if e.type == MOUSEBUTTONDOWN or e.type==MOUSEMOTION:
-            if pages==0:
+        if e.type == MOUSEBUTTONDOWN or e.type == MOUSEMOTION:
+            if pages == 0:
                 if menuGameStart.collidepoint(e.pos):
-                    if e.type==MOUSEMOTION:
+                    if e.type == MOUSEMOTION:
                         collideMenuStart = True
                     else:
                         collideMenuStart = False
-                        pages=1
-                elif menuInstruction.collidepoint(e.pos):
-                    if e.type==MOUSEMOTION:
-                        collideMenuInstruction=True
-                    else:
-                        collideMenuInstruction=False
-                        pages=2
+                        pages = 1
                 elif menuSetting.collidepoint(e.pos):
-                    if e.type==MOUSEMOTION:
-                        collideMenuSetting=True
+                    if e.type == MOUSEMOTION:
+                        collideMenuSetting = True
                     else:
-                        collideMenuSetting=False
-                        pages=3
+                        collideMenuSetting = False
+                        pages = 2
+                elif menuInstruction.collidepoint(e.pos):
+                    if e.type == MOUSEMOTION:
+                        collideMenuInstruction = True
+                    else:
+                        collideMenuInstruction = False
+                        pages = 3
                 elif menuQuit.collidepoint(e.pos):
-                    if e.type==MOUSEMOTION:
-                        collideMenuQuit=True
+                    if e.type == MOUSEMOTION:
+                        collideMenuQuit = True
                     else:
-                        collideMenuQuit=False
-                        running=False
+                        collideMenuQuit = False
+                        running = False
                 else:
-                    collideMenuStart=False
-                    collideMenuInstruction=False
-                    collideMenuQuit=False
-    if pages==0:
+                    collideMenuStart = False
+                    collideMenuSetting = False
+                    collideMenuInstruction = False
+                    collideMenuQuit = False
+    if pages == 0:
         menu()
-    if pages==1:
+    if pages == 1:
         game()
-    if pages==2:
-        pass # placeholder
-    if pages==3:
-        pass #placeholder
+    if pages == 2:
+        pass  # placeholder
+    if pages == 3:
+        pass  # placeholder
     display.update()

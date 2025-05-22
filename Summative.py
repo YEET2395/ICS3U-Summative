@@ -136,6 +136,7 @@ def menu():
     if collideMenuQuit:
         draw.rect(screen, black, menuQuit, 3)
 
+
 def game():
     screen.fill(treeGreen)
 

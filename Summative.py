@@ -23,10 +23,10 @@ inMenu = True
 collideMenuStart=False
 collideMenuInstruction=False
 collideMenuQuit=False
-
+collideMenuSetting=False
 
 global pages
-pages = 0
+pages = 0 # 0 For Menu, 1 for Game, 2 for Instruction, 3 for Setting
 
 # Fonts
 doto = "Fonts/Doto/Doto-VariableFont_ROND,wght.ttf"
@@ -36,7 +36,8 @@ franklin = "Fonts/Franklin_Gothic_Medium/OPTIFranklinGothic-Medium.otf"
 menuTitleText=Rect(300,165,400,70)
 menuGameStart=Rect(300,265,400,70)
 menuInstruction=Rect(300,365,400,70)
-menuQuit=Rect(300,465,400,70)
+menuSetting=Rect(300,465,400,70)
+menuQuit=Rect(300,565,400,70)
 
 # def drawPixelBorder(aRect, pixelSize=7, color=black):
 #     x, y, w, h = aRect
@@ -146,6 +147,12 @@ while running:
                     else:
                         collideMenuInstruction=False
                         pages=2
+                elif menuSetting.collidepoint(e.pos):
+                    if e.type==MOUSEMOTION:
+                        collideMenuSetting=True
+                    else:
+                        collideMenuSetting=False
+                        pages=3
                 elif menuQuit.collidepoint(e.pos):
                     if e.type==MOUSEMOTION:
                         collideMenuQuit=True
@@ -162,4 +169,6 @@ while running:
         game()
     if pages==2:
         pass # placeholder
+    if pages==3:
+        pass #placeholder
     display.update()

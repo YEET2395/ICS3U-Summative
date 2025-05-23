@@ -52,13 +52,20 @@ pauseContinue = Rect(375, 215, 250, 70)
 pauseInstruction = Rect(375, 315, 250, 70)
 pauseSetting = Rect(375, 415, 250, 70)
 pauseReturn = Rect(375, 515, 250, 70)
+gameHealth = Rect(80,20,200,20)
+gameHPText = Rect(20,20,40,20)
+gameWaveText = Rect(20,80,40,20)
+gameAmmoText = Rect(27,50,40,20)
 
 pests=[]
 ammoFireing=[]
 gameLevel = 1
 waves = 1
 health = 100
+maxHealth=100
 score=0
+ammo = 15
+maxAmmo = 15
 
 # def drawPixelBorder(aRect, pixelSize=7, color=black):
 #     x, y, w, h = aRect
@@ -186,13 +193,21 @@ def isHit():
                 score+=5
                 break
 
-
-
+def gameHUD():
+    healthBar=int((health/maxHealth)*200)
+    draw.rect(screen,black,gameHealth)
+    draw.rect(screen,red,(gameHealth[0],gameHealth[1],healthBar,gameHealth[3]))
+    if (health/maxHealth)<=0.2:
+        centerTextOnRect("HP: " + str(health), gameHPText, aFontColor=red)
+    else:
+        centerTextOnRect("HP: "+str(health),gameHPText,aFontColor=white)
+    centerTextOnRect("Wave: "+str(waves),gameWaveText,aFontColor=white)
+    centerTextOnRect("Ammo: " +str(ammo),gameAmmoText,aFontColor=white)
 def game():
     global escapeReturn
     escapeReturn = 0
     screen.fill(treeGreen)
-
+    gameHUD()
 
 def instructions():
     screen.fill(white)

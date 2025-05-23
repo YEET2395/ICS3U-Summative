@@ -29,11 +29,11 @@ collidePauseInstruction = False
 collidePauseSetting = False
 collidePauseReturn = False
 isPaused = False
-pausedAnimation=False
+pausedAnimation = False
 
 global pages
 pages = 0  # 0 For Menu, 1 for Game, 2 for Settings, 3 for Instructions
-escapeReturn=0
+escapeReturn = 0
 
 # Fonts
 doto = "Fonts/Doto/Doto-VariableFont_ROND,wght.ttf"
@@ -45,12 +45,13 @@ menuGameStart = Rect(300, 265, 400, 70)
 menuSetting = Rect(300, 365, 400, 70)
 menuInstruction = Rect(300, 465, 400, 70)
 menuQuit = Rect(300, 565, 400, 70)
-pauseMenu=Rect(350,200,300,400)
-pauseTitleText=Rect(350,115,300,70)
-pauseContinue=Rect(375,215,250,70)
-pauseInstruction=Rect(375,315,250,70)
-pauseSetting=Rect(375,415,250,70)
-pauseReturn=Rect(375,515,250,70)
+pauseMenu = Rect(350, 200, 300, 400)
+pauseTitleText = Rect(350, 115, 300, 70)
+pauseContinue = Rect(375, 215, 250, 70)
+pauseInstruction = Rect(375, 315, 250, 70)
+pauseSetting = Rect(375, 415, 250, 70)
+pauseReturn = Rect(375, 515, 250, 70)
+
 
 # def drawPixelBorder(aRect, pixelSize=7, color=black):
 #     x, y, w, h = aRect
@@ -130,7 +131,7 @@ def menu():
     global running
     global pages
     global escapeReturn
-    escapeReturn=0
+    escapeReturn = 0
     screen.fill(white)
     # drawBorderRect(menuGameStart)
     centerTextOnRect("Forest Invaders", menuTitleText, aFontSize=80, aFontColor=treeGreen)
@@ -157,7 +158,7 @@ def createEnemy():
 
 def game():
     global escapeReturn
-    escapeReturn=0
+    escapeReturn = 0
     screen.fill(treeGreen)
 
 
@@ -168,10 +169,11 @@ def instructions():
 def settings():
     screen.fill(black)
 
+
 def paused():
     global escapeReturn
     overlay = Surface((1000, 700), SRCALPHA)
-    escapeReturn=1
+    escapeReturn = 1
     # Dynamically Render the darkening, failed
     # if not pausedAnimation:
     #     for i in range(0,180):
@@ -181,22 +183,24 @@ def paused():
     #         time.sleep(0.1)
     overlay.fill((0, 0, 0, 180))
     screen.blit(overlay, (0, 0))
-    draw.rect(screen,white,pauseMenu)
-    centerTextOnRect("Paused", pauseTitleText,aFontSize=80,aFontColor=white)
-    drawTextAndRect("Continue", pauseContinue,aFontSize=40,aFontColor=white,aColorRect=treeGreen,border=False)
-    drawTextAndRect("Instructions", pauseInstruction, aFontSize=33, aFontColor=white, aColorRect=treeGreen, border=False)
+    draw.rect(screen, white, pauseMenu)
+    centerTextOnRect("Paused", pauseTitleText, aFontSize=80, aFontColor=white)
+    drawTextAndRect("Continue", pauseContinue, aFontSize=40, aFontColor=white, aColorRect=treeGreen, border=False)
+    drawTextAndRect("Instructions", pauseInstruction, aFontSize=33, aFontColor=white, aColorRect=treeGreen,
+                    border=False)
     drawTextAndRect("Settings", pauseSetting, aFontSize=40, aFontColor=white, aColorRect=treeGreen, border=False)
     drawTextAndRect("Return to Menu", pauseReturn, aFontSize=28, aFontColor=white, aColorRect=treeGreen, border=False)
     if collidePauseContinue:
-        draw.rect(screen,black,pauseContinue,3)
+        draw.rect(screen, black, pauseContinue, 3)
     if collidePauseInstruction:
-        draw.rect(screen,black,pauseInstruction,3)
+        draw.rect(screen, black, pauseInstruction, 3)
     if collidePauseSetting:
         draw.rect(screen, black, pauseSetting, 3)
     if collidePauseReturn:
-        draw.rect(screen,black,pauseReturn,3)
+        draw.rect(screen, black, pauseReturn, 3)
     # display.update()
     # pausedAnimation = True
+
 
 while running:
     startLoadingScreen = LoadingScreenStart(startLoadingScreen)
@@ -237,30 +241,30 @@ while running:
             if pages == 1:
                 if isPaused:
                     if pauseContinue.collidepoint(e.pos):
-                        if e.type==MOUSEMOTION:
-                            collidePauseContinue=True
+                        if e.type == MOUSEMOTION:
+                            collidePauseContinue = True
                         else:
-                            collidePauseContinue=False
-                            isPaused=False
+                            collidePauseContinue = False
+                            isPaused = False
                     elif pauseSetting.collidepoint(e.pos):
-                        if e.type==MOUSEMOTION:
-                            collidePauseSetting=True
+                        if e.type == MOUSEMOTION:
+                            collidePauseSetting = True
                         else:
-                            collidePauseSetting=False
-                            pages=2
+                            collidePauseSetting = False
+                            pages = 2
                     elif pauseInstruction.collidepoint(e.pos):
-                        if e.type==MOUSEMOTION:
-                            collidePauseInstruction=True
+                        if e.type == MOUSEMOTION:
+                            collidePauseInstruction = True
                         else:
-                            collidePauseInstruction=False
-                            pages=3
+                            collidePauseInstruction = False
+                            pages = 3
                     elif pauseReturn.collidepoint(e.pos):
-                        if e.type==MOUSEMOTION:
-                            collidePauseReturn=True
+                        if e.type == MOUSEMOTION:
+                            collidePauseReturn = True
                         else:
-                            collidePauseReturn=False
-                            pages=0
-                            isPaused=False
+                            collidePauseReturn = False
+                            pages = 0
+                            isPaused = False
                     else:
                         collidePauseContinue = False
                         collidePauseSetting = False
@@ -270,7 +274,7 @@ while running:
         if e.type == KEYDOWN:
             if e.key == K_ESCAPE and (pages == 2 or pages == 3):
                 pages = escapeReturn
-            elif e.key == K_ESCAPE and pages==1:
+            elif e.key == K_ESCAPE and pages == 1:
                 isPaused = not isPaused
     if pages == 0:
         menu()

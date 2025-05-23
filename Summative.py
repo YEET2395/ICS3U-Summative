@@ -54,7 +54,11 @@ pauseSetting = Rect(375, 415, 250, 70)
 pauseReturn = Rect(375, 515, 250, 70)
 
 pests=[]
-
+ammoFireing=[]
+gameLevel = 1
+waves = 1
+health = 100
+score=0
 
 # def drawPixelBorder(aRect, pixelSize=7, color=black):
 #     x, y, w, h = aRect
@@ -156,8 +160,32 @@ def menu():
 
 
 def createEnemy():
+    global pests
+    x = 1000
+    y = random.randint(50,650)
+    speed = waves*gameLevel*0.2 + 2
+    pests.append([x,y,speed])
 
-    return
+def updateEnemy():
+    global health
+    global pests
+    for i in pests:
+        i[0]-=i[2]
+        if i[0]<0:
+            pests.remove(i)
+            health-=10*gameLevel
+
+def isHit():
+    global pests
+    global score
+    for i in ammoFireing:
+        for enemy in pests:
+            if Rect(i[0],i[1],8,8).colliderect((enemy[0],enemy[1],16,16)):
+                ammoFireing.remove(i)
+                pests.remove(enemy)
+                score+=5
+                break
+
 
 
 def game():

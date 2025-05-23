@@ -184,9 +184,9 @@ def paused():
     draw.rect(screen,white,pauseMenu)
     centerTextOnRect("Paused", pauseTitleText,aFontSize=80,aFontColor=white)
     drawTextAndRect("Continue", pauseContinue,aFontSize=40,aFontColor=white,aColorRect=treeGreen,border=False)
-    drawTextAndRect("Instructions", pauseInstruction, aFontSize=35, aFontColor=white, aColorRect=treeGreen, border=False)
+    drawTextAndRect("Instructions", pauseInstruction, aFontSize=33, aFontColor=white, aColorRect=treeGreen, border=False)
     drawTextAndRect("Settings", pauseSetting, aFontSize=40, aFontColor=white, aColorRect=treeGreen, border=False)
-    drawTextAndRect("Return to Menu", pauseReturn, aFontSize=30, aFontColor=white, aColorRect=treeGreen, border=False)
+    drawTextAndRect("Return to Menu", pauseReturn, aFontSize=28, aFontColor=white, aColorRect=treeGreen, border=False)
     if collidePauseContinue:
         draw.rect(screen,black,pauseContinue,3)
     if collidePauseInstruction:

@@ -69,6 +69,10 @@ score = 0
 ammo = 20
 maxAmmo = 20
 
+movePlayerUP="w"
+movePlayerDown="s"
+keyUp=key.key_code(movePlayerUP)
+keyDown=key.key_code(movePlayerDown)
 
 # def drawPixelBorder(aRect, pixelSize=7, color=black):
 #     x, y, w, h = aRect
@@ -172,7 +176,7 @@ def menu():
 def createEnemy():
     global pests
     x = 1000
-    y = random.randint(50, 650)
+    y = random.randint(100, 650)
     speed = waves * gameLevel * 0.2 + 2
     pests.append([x, y, speed])
 

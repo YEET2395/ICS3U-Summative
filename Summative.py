@@ -31,7 +31,8 @@ collidePauseReturn = False
 isPaused = False
 pausedAnimation = False
 
-global pages
+
+
 pages = 0  # 0 For Menu, 1 for Game, 2 for Settings, 3 for Instructions
 escapeReturn = 0
 
@@ -51,6 +52,8 @@ pauseContinue = Rect(375, 215, 250, 70)
 pauseInstruction = Rect(375, 315, 250, 70)
 pauseSetting = Rect(375, 415, 250, 70)
 pauseReturn = Rect(375, 515, 250, 70)
+
+pests=[]
 
 
 # def drawPixelBorder(aRect, pixelSize=7, color=black):
@@ -153,6 +156,7 @@ def menu():
 
 
 def createEnemy():
+
     return
 
 

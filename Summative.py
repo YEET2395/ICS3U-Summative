@@ -12,9 +12,11 @@ screen = display.set_mode((1000, 700))
 black = (0, 0, 0)
 white = (255, 255, 255)
 grey = (220, 220, 220)
-lightBlue = (204, 255, 255)
 red = (255, 0, 0)
 green = (0, 255, 0)
+blue = (0, 0, 255)
+lightBlue = (204, 255, 255)
+darkBlue = (30, 144, 255)
 treeGreen = (74, 153, 58)
 
 running = True
@@ -30,8 +32,6 @@ collidePauseSetting = False
 collidePauseReturn = False
 isPaused = False
 pausedAnimation = False
-
-
 
 pages = 0  # 0 For Menu, 1 for Game, 2 for Settings, 3 for Instructions
 escapeReturn = 0
@@ -52,20 +52,23 @@ pauseContinue = Rect(375, 215, 250, 70)
 pauseInstruction = Rect(375, 315, 250, 70)
 pauseSetting = Rect(375, 415, 250, 70)
 pauseReturn = Rect(375, 515, 250, 70)
-gameHealth = Rect(80,20,200,20)
-gameHPText = Rect(20,20,40,20)
-gameWaveText = Rect(20,80,40,20)
-gameAmmoText = Rect(27,50,40,20)
+gameHealth = Rect(110, 20, 200, 20)
+gameAmmo = Rect(110, 50, 200, 20)
+gameHPText = Rect(15, 20, 40, 20)
+gameAmmoText = Rect(15, 50, 40, 20)
+gameWaveText = Rect(15, 80, 40, 20)
+gameScoreText = Rect(110, 80, 40, 20)
 
-pests=[]
-ammoFireing=[]
+pests = []
+ammoFireing = []
 gameLevel = 1
 waves = 1
 health = 100
-maxHealth=100
-score=0
-ammo = 15
-maxAmmo = 15
+maxHealth = 100
+score = 0
+ammo = 20
+maxAmmo = 20
+
 
 # def drawPixelBorder(aRect, pixelSize=7, color=black):
 #     x, y, w, h = aRect
@@ -169,45 +172,58 @@ def menu():
 def createEnemy():
     global pests
     x = 1000
-    y = random.randint(50,650)
-    speed = waves*gameLevel*0.2 + 2
-    pests.append([x,y,speed])
+    y = random.randint(50, 650)
+    speed = waves * gameLevel * 0.2 + 2
+    pests.append([x, y, speed])
+
 
 def updateEnemy():
     global health
     global pests
     for i in pests:
-        i[0]-=i[2]
-        if i[0]<0:
+        i[0] -= i[2]
+        if i[0] < 0:
             pests.remove(i)
-            health-=10*gameLevel
+            health -= 10 * gameLevel
+
 
 def isHit():
     global pests
     global score
     for i in ammoFireing:
         for enemy in pests:
-            if Rect(i[0],i[1],8,8).colliderect((enemy[0],enemy[1],16,16)):
+            if Rect(i[0], i[1], 8, 8).colliderect((enemy[0], enemy[1], 16, 16)):
                 ammoFireing.remove(i)
                 pests.remove(enemy)
-                score+=5
+                score += 5
                 break
 
+
 def gameHUD():
-    healthBar=int((health/maxHealth)*200)
-    draw.rect(screen,black,gameHealth)
-    draw.rect(screen,red,(gameHealth[0],gameHealth[1],healthBar,gameHealth[3]))
-    if (health/maxHealth)<=0.2:
-        centerTextOnRect("HP: " + str(health), gameHPText, aFontColor=red)
+    healthBar = int((health / maxHealth) * 200)
+    ammoBar = int((ammo / maxAmmo) * 200)
+    draw.rect(screen, black, gameHealth)
+    draw.rect(screen, red, (gameHealth[0], gameHealth[1], healthBar, gameHealth[3]))
+    draw.rect(screen, black, gameAmmo)
+    draw.rect(screen, darkBlue, (gameAmmo[0], gameAmmo[1], ammoBar, gameAmmo[3]))
+    if (health / maxHealth) <= 0.2:
+        textRender("HP: " + str(health), gameHPText, aFontColor=red)
     else:
-        centerTextOnRect("HP: "+str(health),gameHPText,aFontColor=white)
-    centerTextOnRect("Wave: "+str(waves),gameWaveText,aFontColor=white)
-    centerTextOnRect("Ammo: " +str(ammo),gameAmmoText,aFontColor=white)
+        textRender("HP: " + str(health), gameHPText, aFontColor=white)
+    if (ammo / maxAmmo) <= 0.2:
+        textRender("Ammo: " + str(ammo), gameAmmoText, aFontColor=red)
+    else:
+        textRender("Ammo: " + str(ammo), gameAmmoText, aFontColor=white)
+    textRender("Wave: " + str(waves), gameWaveText, aFontColor=white)
+    textRender("Score: " + str(score), gameScoreText, aFontColor=white)
+
+
 def game():
     global escapeReturn
     escapeReturn = 0
     screen.fill(treeGreen)
     gameHUD()
+
 
 def instructions():
     screen.fill(white)

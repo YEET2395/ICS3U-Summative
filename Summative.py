@@ -194,6 +194,13 @@ def menu():
 #         screen.blit(img,loc)
 #         display.update()
 #         time.sleep(0.1)
+
+def drawImg(aPathName,loc, aScale=1.0):
+    img = pygame.image.load(aPathName).convert_alpha()
+    w, h = img.get_size()
+    img = pygame.transform.scale(img, (int(w * aScale), int(h * aScale)))
+    screen.blit(img, loc)
+
 def load_animation_images(aPathName, aScale=1, frameCount=4):
     frames = []
     for i in range(1, frameCount + 1):
@@ -264,32 +271,35 @@ def gameHUD():
     textRender("Wave: " + str(waves), gameWaveText, aFontColor=white)
     textRender("Score: " + str(score), gameScoreText, aFontColor=white)
 
-def moveCharacter():
+def moveDrawCharacter():
     global playerx, playery
-    if gameMovepUp:
-        playery-=2
-        if playery<=100:
-            playery=100
-    if gameMoveDown:
-        playery+=2
-        if playery>=600:
-            playery=600
-    if gameMoveForward:
-        playerx+=2
-        if playerx>=200:
-            playerx=200
-    if gameMoveBack:
-        playerx-=2
-        if playerx<=10:
-            playerx=10
-    drawAnimated("Assets/Forest/Ranger_Idle_", (playerx, playery), 2.5)
+    if not isPaused:
+        if gameMovepUp:
+            playery-=2
+            if playery<=100:
+                playery=100
+        if gameMoveDown:
+            playery+=2
+            if playery>=600:
+                playery=600
+        if gameMoveForward:
+            playerx+=2
+            if playerx>=200:
+                playerx=200
+        if gameMoveBack:
+            playerx-=2
+            if playerx<=10:
+                playerx=10
+        drawAnimated("Assets/Forest/Ranger_Idle_", (playerx, playery), 2.5)
+    if isPaused:
+        drawImg("Assets/Forest/Ranger_Idle_4.png", (playerx, playery), 2.5)
 def game():
     global escapeReturn
     global playerx,playery
     escapeReturn = 0
     screen.fill(treeGreen)
     gameHUD()
-    moveCharacter()
+    moveDrawCharacter()
 
 
 def instructions():
@@ -302,6 +312,8 @@ def settings():
 
 def paused():
     global escapeReturn
+    global gameMovepUp,gameMoveDown,gameMoveForward,gameMoveBack
+    gameMovepUp,gameMoveDown,gameMoveForward,gameMoveBack = False,False,False,False
     overlay = Surface((1000, 700), SRCALPHA)
     escapeReturn = 1
     # Dynamically Render the darkening, failed

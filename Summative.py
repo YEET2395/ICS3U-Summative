@@ -145,6 +145,19 @@ def drawTextAndRect(aText, aRect, aFontSize=20, aFontColor=black, fontType=pixel
         draw.rect(screen, aColorRect, aRect)
     centerTextOnRect(aText, aRect, aFontSize, aFontColor, fontType)
 
+def gameInit():
+    global pests,ammoFireing,gameLevel,waves,health,maxHealth,score,ammo,maxAmmo,playerx,playery
+    pests = []
+    ammoFireing = []
+    gameLevel = 1
+    waves = 1
+    health = 100
+    maxHealth = 100
+    score = 0
+    ammo = 20
+    maxAmmo = 20
+    playerx, playery = 100, 350
+
 
 def LoadingScreenStart(isDisplayed):
     if not isDisplayed:
@@ -314,6 +327,8 @@ def moveDrawCharacter():
 def game():
     global escapeReturn
     global playerx, playery
+    if initGameStart:
+        gameInit()
     escapeReturn = 0
     screen.fill(treeGreen)
     gameHUD()
@@ -367,6 +382,7 @@ def paused():
 
 while running:
     gameShoot = False
+    initGameStart = False
     startLoadingScreen = LoadingScreenStart(startLoadingScreen)
     for e in event.get():
         if e.type == QUIT:
@@ -379,6 +395,7 @@ while running:
                     else:
                         collideMenuStart = False
                         pages = 1
+                        initGameStart = True
                 elif menuSetting.collidepoint(e.pos):
                     if e.type == MOUSEMOTION:
                         collideMenuSetting = True

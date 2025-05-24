@@ -37,7 +37,7 @@ gameMovepUp = False
 gameMoveDown = False
 gameMoveForward = False
 gameMoveBack = False
-
+gameShoot = False
 
 pages = 0  # 0 For Menu, 1 for Game, 2 for Settings, 3 for Instructions
 escapeReturn = 0
@@ -81,11 +81,12 @@ movePlayerUp = "w"
 movePlayerDown = "s"
 movePlayerForward = "d"
 movePlayerBack = "a"
+playerShoot = " "
 keyUp = key.key_code(movePlayerUp)
 keyDown = key.key_code(movePlayerDown)
 keyForward = key.key_code(movePlayerForward)
 keyBack = key.key_code(movePlayerBack)
-
+keyShoot = key.key_code(playerShoot)
 
 # def drawPixelBorder(aRect, pixelSize=7, color=black):
 #     x, y, w, h = aRect
@@ -246,11 +247,23 @@ def isHit():
     global score
     for i in ammoFireing:
         for enemy in pests:
-            if Rect(i[0], i[1], 8, 8).colliderect((enemy[0], enemy[1], 16, 16)):
+            if Rect(i[0], i[1], 16, 16).colliderect((enemy[0], enemy[1], 16, 16)):
                 ammoFireing.remove(i)
                 pests.remove(enemy)
                 score += 5
                 break
+
+def shoot():
+    global ammo
+    if gameShoot and ammo>0:
+        ammoFireing.append([playerx+55,playery+50])
+        ammo-=1
+    for i in range(len(ammoFireing)):
+        if not isPaused:
+            ammoFireing[i][0]+=5
+            drawAnimated("Assets/Bullet/Bullet_",(ammoFireing[i][0],ammoFireing[i][1]))
+        if isPaused:
+            drawImg("Assets/Bullet/Bullet_1.png",(ammoFireing[i][0],ammoFireing[i][1]))
 
 
 def gameHUD():
@@ -300,6 +313,7 @@ def game():
     screen.fill(treeGreen)
     gameHUD()
     moveDrawCharacter()
+    shoot()
 
 
 def instructions():
@@ -345,6 +359,7 @@ def paused():
 
 
 while running:
+    gameShoot = False
     startLoadingScreen = LoadingScreenStart(startLoadingScreen)
     for e in event.get():
         if e.type == QUIT:
@@ -413,6 +428,7 @@ while running:
                         collidePauseInstruction = False
                         collidePauseReturn = False
         if e.type==KEYDOWN:
+            gameShoot=False
             if pages==1 and not isPaused:
                 if e.key==keyUp:
                     gameMovepUp = True
@@ -422,7 +438,10 @@ while running:
                     gameMoveForward = True
                 elif e.key==keyBack:
                     gameMoveBack = True
+                if e.key==keyShoot:
+                    gameShoot=True
         if e.type==KEYUP:
+            gameShoot=False
             if pages == 1 and not isPaused:
                 if e.key==keyUp:
                     gameMovepUp = False

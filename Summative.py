@@ -74,8 +74,7 @@ maxHealth = 100
 score = 0
 ammo = 20
 maxAmmo = 20
-playerx,playery=100,350
-
+playerx, playery = 100, 350
 
 movePlayerUp = "w"
 movePlayerDown = "s"
@@ -87,6 +86,7 @@ keyDown = key.key_code(movePlayerDown)
 keyForward = key.key_code(movePlayerForward)
 keyBack = key.key_code(movePlayerBack)
 keyShoot = key.key_code(playerShoot)
+
 
 # def drawPixelBorder(aRect, pixelSize=7, color=black):
 #     x, y, w, h = aRect
@@ -196,11 +196,12 @@ def menu():
 #         display.update()
 #         time.sleep(0.1)
 
-def drawImg(aPathName,loc, aScale=1.0):
+def drawImg(aPathName, loc, aScale=1.0):
     img = pygame.image.load(aPathName).convert_alpha()
     w, h = img.get_size()
     img = pygame.transform.scale(img, (int(w * aScale), int(h * aScale)))
     screen.blit(img, loc)
+
 
 def load_animation_images(aPathName, aScale=1, frameCount=4):
     frames = []
@@ -253,17 +254,18 @@ def isHit():
                 score += 5
                 break
 
+
 def shoot():
     global ammo
-    if gameShoot and ammo>0:
-        ammoFireing.append([playerx+55,playery+50])
-        ammo-=1
+    if gameShoot and ammo > 0:
+        ammoFireing.append([playerx + 55, playery + 50])
+        ammo -= 1
     for i in range(len(ammoFireing)):
         if not isPaused:
-            ammoFireing[i][0]+=5
-            drawAnimated("Assets/Bullet/Bullet_",(ammoFireing[i][0],ammoFireing[i][1]))
+            ammoFireing[i][0] += 5
+            drawAnimated("Assets/Bullet/Bullet_", (ammoFireing[i][0], ammoFireing[i][1]))
         if isPaused:
-            drawImg("Assets/Bullet/Bullet_1.png",(ammoFireing[i][0],ammoFireing[i][1]))
+            drawImg("Assets/Bullet/Bullet_1.png", (ammoFireing[i][0], ammoFireing[i][1]))
 
 
 def gameHUD():
@@ -284,31 +286,34 @@ def gameHUD():
     textRender("Wave: " + str(waves), gameWaveText, aFontColor=white)
     textRender("Score: " + str(score), gameScoreText, aFontColor=white)
 
+
 def moveDrawCharacter():
     global playerx, playery
     if not isPaused:
         if gameMovepUp:
-            playery-=2
-            if playery<=100:
-                playery=100
+            playery -= 2
+            if playery <= 100:
+                playery = 100
         if gameMoveDown:
-            playery+=2
-            if playery>=600:
-                playery=600
+            playery += 2
+            if playery >= 600:
+                playery = 600
         if gameMoveForward:
-            playerx+=2
-            if playerx>=200:
-                playerx=200
+            playerx += 2
+            if playerx >= 200:
+                playerx = 200
         if gameMoveBack:
-            playerx-=2
-            if playerx<=10:
-                playerx=10
+            playerx -= 2
+            if playerx <= 10:
+                playerx = 10
         drawAnimated("Assets/Forest/Ranger_Idle_", (playerx, playery), 2.5)
     if isPaused:
         drawImg("Assets/Forest/Ranger_Idle_4.png", (playerx, playery), 2.5)
+
+
 def game():
     global escapeReturn
-    global playerx,playery
+    global playerx, playery
     escapeReturn = 0
     screen.fill(treeGreen)
     gameHUD()
@@ -318,16 +323,18 @@ def game():
 
 def instructions():
     screen.fill(white)
+    centerTextOnRect("This is Instructions Page (WIP)", Rect(0, 0, 1000, 700), aFontSize=60)
 
 
 def settings():
     screen.fill(black)
+    centerTextOnRect("This is Settings Page (WIP)", Rect(0, 0, 1000, 700), aFontSize=60, aFontColor=white)
 
 
 def paused():
     global escapeReturn
-    global gameMovepUp,gameMoveDown,gameMoveForward,gameMoveBack
-    gameMovepUp,gameMoveDown,gameMoveForward,gameMoveBack = False,False,False,False
+    global gameMovepUp, gameMoveDown, gameMoveForward, gameMoveBack
+    gameMovepUp, gameMoveDown, gameMoveForward, gameMoveBack = False, False, False, False
     overlay = Surface((1000, 700), SRCALPHA)
     escapeReturn = 1
     # Dynamically Render the darkening, failed
@@ -427,30 +434,30 @@ while running:
                         collidePauseSetting = False
                         collidePauseInstruction = False
                         collidePauseReturn = False
-        if e.type==KEYDOWN:
-            gameShoot=False
-            if pages==1 and not isPaused:
-                if e.key==keyUp:
-                    gameMovepUp = True
-                elif e.key==keyDown:
-                    gameMoveDown = True
-                if e.key==keyForward:
-                    gameMoveForward = True
-                elif e.key==keyBack:
-                    gameMoveBack = True
-                if e.key==keyShoot:
-                    gameShoot=True
-        if e.type==KEYUP:
-            gameShoot=False
+        if e.type == KEYDOWN:
+            gameShoot = False
             if pages == 1 and not isPaused:
-                if e.key==keyUp:
+                if e.key == keyUp:
+                    gameMovepUp = True
+                elif e.key == keyDown:
+                    gameMoveDown = True
+                if e.key == keyForward:
+                    gameMoveForward = True
+                elif e.key == keyBack:
+                    gameMoveBack = True
+                if e.key == keyShoot:
+                    gameShoot = True
+        if e.type == KEYUP:
+            gameShoot = False
+            if pages == 1 and not isPaused:
+                if e.key == keyUp:
                     gameMovepUp = False
-                if e.key==keyDown:
+                if e.key == keyDown:
                     gameMoveDown = False
-                if e.key ==keyForward:
-                    gameMoveForward=False
-                if e.key==keyBack:
-                    gameMoveBack=False
+                if e.key == keyForward:
+                    gameMoveForward = False
+                if e.key == keyBack:
+                    gameMoveBack = False
         if e.type == KEYDOWN:
             if e.key == K_ESCAPE and (pages == 2 or pages == 3):
                 pages = escapeReturn

@@ -1,4 +1,5 @@
 import os
+import pygame.image
 from pygame import *
 import time
 import random
@@ -32,6 +33,11 @@ collidePauseSetting = False
 collidePauseReturn = False
 isPaused = False
 pausedAnimation = False
+gameMovepUp = False
+gameMoveDown = False
+gameMoveForward = False
+gameMoveBack = False
+
 
 pages = 0  # 0 For Menu, 1 for Game, 2 for Settings, 3 for Instructions
 escapeReturn = 0
@@ -68,11 +74,18 @@ maxHealth = 100
 score = 0
 ammo = 20
 maxAmmo = 20
+playerx,playery=100,350
 
-movePlayerUP="w"
-movePlayerDown="s"
-keyUp=key.key_code(movePlayerUP)
-keyDown=key.key_code(movePlayerDown)
+
+movePlayerUp = "w"
+movePlayerDown = "s"
+movePlayerForward = "d"
+movePlayerBack = "a"
+keyUp = key.key_code(movePlayerUp)
+keyDown = key.key_code(movePlayerDown)
+keyForward = key.key_code(movePlayerForward)
+keyBack = key.key_code(movePlayerBack)
+
 
 # def drawPixelBorder(aRect, pixelSize=7, color=black):
 #     x, y, w, h = aRect
@@ -173,6 +186,36 @@ def menu():
         draw.rect(screen, black, menuQuit, 3)
 
 
+# def drawAnimated(aPathName,loc,aScale=1):
+#     for i in range(1,5):
+#         img=pygame.image.load(aPathName+str(i)+".png").convert_alpha()
+#         w,h=img.get_size()
+#         img=transform.scale(img,(w*aScale,h*aScale))
+#         screen.blit(img,loc)
+#         display.update()
+#         time.sleep(0.1)
+def load_animation_images(aPathName, aScale=1, frameCount=4):
+    frames = []
+    for i in range(1, frameCount + 1):
+        img = pygame.image.load(aPathName + str(i) + ".png").convert_alpha()
+        w, h = img.get_size()
+        img = pygame.transform.scale(img, (int(w * aScale), int(h * aScale)))
+        frames.append(img)
+    return frames
+
+
+def drawAnimated(aPathName, loc, aScale=1.0, frameCount=4, frameDuration=150):
+    frames = []
+    for i in range(1, frameCount + 1):
+        img = pygame.image.load(aPathName + str(i) + ".png").convert_alpha()
+        w, h = img.get_size()
+        img = pygame.transform.scale(img, (int(w * aScale), int(h * aScale)))
+        frames.append(img)
+    now = pygame.time.get_ticks()
+    frameIndex = (now // frameDuration) % len(frames)
+    screen.blit(frames[frameIndex], loc)
+
+
 def createEnemy():
     global pests
     x = 1000
@@ -221,12 +264,32 @@ def gameHUD():
     textRender("Wave: " + str(waves), gameWaveText, aFontColor=white)
     textRender("Score: " + str(score), gameScoreText, aFontColor=white)
 
-
+def moveCharacter():
+    global playerx, playery
+    if gameMovepUp:
+        playery-=2
+        if playery<=100:
+            playery=100
+    if gameMoveDown:
+        playery+=2
+        if playery>=600:
+            playery=600
+    if gameMoveForward:
+        playerx+=2
+        if playerx>=200:
+            playerx=200
+    if gameMoveBack:
+        playerx-=2
+        if playerx<=10:
+            playerx=10
+    drawAnimated("Assets/Forest/Ranger_Idle_", (playerx, playery), 2.5)
 def game():
     global escapeReturn
+    global playerx,playery
     escapeReturn = 0
     screen.fill(treeGreen)
     gameHUD()
+    moveCharacter()
 
 
 def instructions():
@@ -337,7 +400,26 @@ while running:
                         collidePauseSetting = False
                         collidePauseInstruction = False
                         collidePauseReturn = False
-
+        if e.type==KEYDOWN:
+            if pages==1 and not isPaused:
+                if e.key==keyUp:
+                    gameMovepUp = True
+                elif e.key==keyDown:
+                    gameMoveDown = True
+                if e.key==keyForward:
+                    gameMoveForward = True
+                elif e.key==keyBack:
+                    gameMoveBack = True
+        if e.type==KEYUP:
+            if pages == 1 and not isPaused:
+                if e.key==keyUp:
+                    gameMovepUp = False
+                if e.key==keyDown:
+                    gameMoveDown = False
+                if e.key ==keyForward:
+                    gameMoveForward=False
+                if e.key==keyBack:
+                    gameMoveBack=False
         if e.type == KEYDOWN:
             if e.key == K_ESCAPE and (pages == 2 or pages == 3):
                 pages = escapeReturn

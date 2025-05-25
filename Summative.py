@@ -75,7 +75,7 @@ score = 0
 ammo = 20
 maxAmmo = 20
 playerx, playery = 100, 350
-listofRandomEnemy=[] #Placeholder for now
+listofRandomEnemy=["Assets/Forest/Bear_Walk_"] #Placeholder for now
 
 
 movePlayerUp = "w"
@@ -251,7 +251,7 @@ def createEnemy():
     y = noCollision(120,600,0)
     if y!=False:
         speed = int(waves * gameLevel * 0.2 + 1)
-        enemyNamePath = "Assets/Forest/Bear_Walk_"
+        enemyNamePath = random.choice(listofRandomEnemy)
         reflect=True
         pests.append([x, y, speed,enemyNamePath,reflect])
 

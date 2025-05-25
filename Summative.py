@@ -75,6 +75,8 @@ score = 0
 ammo = 20
 maxAmmo = 20
 playerx, playery = 100, 350
+listofRandomEnemy=[] #Placeholder for now
+
 
 movePlayerUp = "w"
 movePlayerDown = "s"
@@ -209,10 +211,12 @@ def menu():
 #         display.update()
 #         time.sleep(0.1)
 
-def drawImg(aPathName, loc, aScale=1.0):
+def drawImg(aPathName, loc, aScale=1.0,reflect=False):
     img = pygame.image.load(aPathName).convert_alpha()
     w, h = img.get_size()
     img = pygame.transform.scale(img, (int(w * aScale), int(h * aScale)))
+    if reflect:
+        img=transform.flip(img,True,False)
     screen.blit(img, loc)
 
 
@@ -226,12 +230,14 @@ def load_animation_images(aPathName, aScale=1, frameCount=4):
     return frames
 
 
-def drawAnimated(aPathName, loc, aScale=1.0, frameCount=4, frameDuration=150):
+def drawAnimated(aPathName, loc, aScale=1.0, frameCount=4, frameDuration=150,reflect=False):
     frames = []
     for i in range(1, frameCount + 1):
         img = pygame.image.load(aPathName + str(i) + ".png").convert_alpha()
         w, h = img.get_size()
         img = pygame.transform.scale(img, (int(w * aScale), int(h * aScale)))
+        if reflect:
+            img=transform.flip(img,True,False)
         frames.append(img)
     now = pygame.time.get_ticks()
     frameIndex = (now // frameDuration) % len(frames)
@@ -241,19 +247,42 @@ def drawAnimated(aPathName, loc, aScale=1.0, frameCount=4, frameDuration=150):
 def createEnemy():
     global pests
     x = 1000
-    y = random.randint(100, 650)
-    speed = waves * gameLevel * 0.2 + 2
-    pests.append([x, y, speed])
+    # y = random.randint(120, 600)
+    y = noCollision(120,600,0)
+    if y!=False:
+        speed = int(waves * gameLevel * 0.2 + 1)
+        enemyNamePath = "Assets/Forest/Bear_Walk_"
+        reflect=True
+        pests.append([x, y, speed,enemyNamePath,reflect])
 
+def noCollision(a,b,layer):
+    out = random.randint(a, b)
+    if layer == 10:
+        return False
+    for i in pests:
+        # if (i[1] <= out <= i[1]+64 or out<=i[1]<=out+64) and 1000-i[0]<128:
+        if abs(i[1]-out)<=64 and 1000 - i[0] < 128:
+            return noCollision(a,b,layer+1)
+    return out
 
 def updateEnemy():
     global health
     global pests
+    isHit()
     for i in pests:
-        i[0] -= i[2]
-        if i[0] < 0:
-            pests.remove(i)
-            health -= 10 * gameLevel
+        if not isPaused:
+            i[0] -= i[2]
+            if i[0] < 0:
+                pests.remove(i)
+                health -= 5 * gameLevel
+                if health<=0:
+                    return True
+            drawAnimated(i[3], (i[0], i[1]), aScale=2, reflect=i[4])
+            # draw.rect(screen,black,(i[0],i[1],3,3))
+        else:
+            drawImg(i[3]+"4.png", (i[0], i[1]),aScale=2,reflect=i[4])
+    return False
+
 
 
 def isHit():
@@ -261,7 +290,7 @@ def isHit():
     global score
     for i in ammoFireing:
         for enemy in pests:
-            if Rect(i[0], i[1], 16, 16).colliderect((enemy[0], enemy[1], 16, 16)):
+            if Rect(i[0], i[1], 16, 16).colliderect((enemy[0], enemy[1], 64, 64)):
                 ammoFireing.remove(i)
                 pests.remove(enemy)
                 score += 5
@@ -325,6 +354,7 @@ def moveDrawCharacter():
 
 
 def game():
+    global pages
     global escapeReturn
     global playerx, playery
     if initGameStart:
@@ -334,7 +364,10 @@ def game():
     gameHUD()
     moveDrawCharacter()
     shoot()
-
+    if len(pests)<5:
+        createEnemy()
+    if updateEnemy():
+        pages=0 #temporary placeholder
 
 def instructions():
     screen.fill(white)
@@ -464,6 +497,10 @@ while running:
                     gameMoveBack = True
                 if e.key == keyShoot:
                     gameShoot = True
+            if e.key == K_ESCAPE and (pages == 2 or pages == 3):
+                pages = escapeReturn
+            elif e.key == K_ESCAPE and pages == 1:
+                isPaused = not isPaused
         if e.type == KEYUP:
             gameShoot = False
             if pages == 1 and not isPaused:
@@ -475,11 +512,7 @@ while running:
                     gameMoveForward = False
                 if e.key == keyBack:
                     gameMoveBack = False
-        if e.type == KEYDOWN:
-            if e.key == K_ESCAPE and (pages == 2 or pages == 3):
-                pages = escapeReturn
-            elif e.key == K_ESCAPE and pages == 1:
-                isPaused = not isPaused
+
     if pages == 0:
         menu()
     if pages == 1:

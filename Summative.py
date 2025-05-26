@@ -3,6 +3,7 @@ import pygame.image
 from pygame import *
 import time
 import random
+import math
 
 os.environ['SDL_VIDEO_WINDOW_POS'] = "%d, %d" % (20, 50)
 
@@ -69,14 +70,14 @@ pests = []
 ammoFireing = []
 gameLevel = 1
 waves = 1
-health = 100
-maxHealth = 100
+health = 10000
+maxHealth = 10000
 score = 0
-ammo = 20
-maxAmmo = 20
+ammo = 2000
+maxAmmo = 2000
 playerx, playery = 100, 350
-listofRandomEnemy=["Assets/Forest/Bear_Walk_"] #Placeholder for now
-
+listofRandomEnemy = ["Assets/Forest/Bear_Walk_"]  # Placeholder for now
+enemySpawnedWave = 0
 
 movePlayerUp = "w"
 movePlayerDown = "s"
@@ -147,18 +148,20 @@ def drawTextAndRect(aText, aRect, aFontSize=20, aFontColor=black, fontType=pixel
         draw.rect(screen, aColorRect, aRect)
     centerTextOnRect(aText, aRect, aFontSize, aFontColor, fontType)
 
+
 def gameInit():
-    global pests,ammoFireing,gameLevel,waves,health,maxHealth,score,ammo,maxAmmo,playerx,playery
+    global pests, ammoFireing, gameLevel, waves, health, maxHealth, score, ammo, maxAmmo, playerx, playery, enemySpawnedWave
     pests = []
     ammoFireing = []
     gameLevel = 1
     waves = 1
-    health = 100
-    maxHealth = 100
+    health = 10000
+    maxHealth = 10000
     score = 0
-    ammo = 20
-    maxAmmo = 20
+    ammo = 2000
+    maxAmmo = 2000
     playerx, playery = 100, 350
+    enemySpawnedWave = 0
 
 
 def LoadingScreenStart(isDisplayed):
@@ -211,13 +214,13 @@ def menu():
 #         display.update()
 #         time.sleep(0.1)
 
-def drawImg(aPathName, loc, aScale=1.0,reflect=False):
+def drawImg(aPathName, loc, aScale=1.0, reflect=False):
     img = pygame.image.load(aPathName).convert_alpha()
     w, h = img.get_size()
     img = pygame.transform.scale(img, (int(w * aScale), int(h * aScale)))
     if reflect:
-        img=transform.flip(img,True,False)
-    screen.blit(img, loc)
+        img = transform.flip(img, True, False).convert_alpha()
+    screen.blit(img.convert_alpha(), loc)
 
 
 def load_animation_images(aPathName, aScale=1, frameCount=4):
@@ -225,45 +228,53 @@ def load_animation_images(aPathName, aScale=1, frameCount=4):
     for i in range(1, frameCount + 1):
         img = pygame.image.load(aPathName + str(i) + ".png").convert_alpha()
         w, h = img.get_size()
-        img = pygame.transform.scale(img, (int(w * aScale), int(h * aScale)))
+        img = pygame.transform.scale(img, (int(w * aScale), int(h * aScale))).convert_alpha()
         frames.append(img)
     return frames
 
 
-def drawAnimated(aPathName, loc, aScale=1.0, frameCount=4, frameDuration=150,reflect=False):
+def drawAnimated(aPathName, loc, aScale=1.0, frameCount=4, frameDuration=150, reflect=False):
     frames = []
     for i in range(1, frameCount + 1):
         img = pygame.image.load(aPathName + str(i) + ".png").convert_alpha()
         w, h = img.get_size()
         img = pygame.transform.scale(img, (int(w * aScale), int(h * aScale)))
         if reflect:
-            img=transform.flip(img,True,False)
+            img = transform.flip(img, True, False).convert_alpha()
         frames.append(img)
     now = pygame.time.get_ticks()
     frameIndex = (now // frameDuration) % len(frames)
-    screen.blit(frames[frameIndex], loc)
+    screen.blit(frames[frameIndex].convert_alpha(), loc)
 
 
 def createEnemy():
+    global enemySpawnedWave
     global pests
+    global waves
     x = 1000
     # y = random.randint(120, 600)
-    y = noCollision(120,600,0)
-    if y!=False:
+    y = noCollision(120, 600, 0)
+    if y != False:
         speed = int(waves * gameLevel * 0.2 + 1)
         enemyNamePath = random.choice(listofRandomEnemy)
-        reflect=True
-        pests.append([x, y, speed,enemyNamePath,reflect])
+        reflect = True
+        pests.append([x, y, speed, enemyNamePath, reflect])
+        enemySpawnedWave += 1
+        if enemySpawnedWave == 10 * math.ceil(waves / 5):
+            waves += 1
+            enemySpawnedWave = 0
 
-def noCollision(a,b,layer):
+
+def noCollision(a, b, layer):
     out = random.randint(a, b)
     if layer == 10:
         return False
     for i in pests:
         # if (i[1] <= out <= i[1]+64 or out<=i[1]<=out+64) and 1000-i[0]<128:
-        if abs(i[1]-out)<=64 and 1000 - i[0] < 128:
-            return noCollision(a,b,layer+1)
+        if abs(i[1] - out) <= 64 and 1000 - i[0] < 128:
+            return noCollision(a, b, layer + 1)
     return out
+
 
 def updateEnemy():
     global health
@@ -275,14 +286,13 @@ def updateEnemy():
             if i[0] < 0:
                 pests.remove(i)
                 health -= 5 * gameLevel
-                if health<=0:
+                if health <= 0:
                     return True
             drawAnimated(i[3], (i[0], i[1]), aScale=2, reflect=i[4])
             # draw.rect(screen,black,(i[0],i[1],3,3))
         else:
-            drawImg(i[3]+"4.png", (i[0], i[1]),aScale=2,reflect=i[4])
+            drawImg(i[3] + "4.png", (i[0], i[1]), aScale=2, reflect=i[4])
     return False
-
 
 
 def isHit():
@@ -364,10 +374,11 @@ def game():
     gameHUD()
     moveDrawCharacter()
     shoot()
-    if len(pests)<5:
+    if len(pests) < 5:
         createEnemy()
     if updateEnemy():
-        pages=0 #temporary placeholder
+        pages = 0  # temporary placeholder
+
 
 def instructions():
     screen.fill(white)

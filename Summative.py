@@ -76,7 +76,8 @@ score = 0
 ammo = 2000
 maxAmmo = 2000
 playerx, playery = 100, 350
-listofRandomEnemy = ["Assets/Forest/Bear_Walk_"]  # Placeholder for now
+listofRandomEnemy = ["Assets/Forest/Bear_Walk_", "Assets/Forest/GnollBrute_Walk_", "Assets/Forest/NormalMushroom_Walk_",
+                     "Assets/Forest/Wolf_Walk_"]  # Placeholder for now
 enemySpawnedWave = 0
 
 movePlayerUp = "w"
@@ -298,12 +299,16 @@ def updateEnemy():
 def isHit():
     global pests
     global score
+    global ammo
     for i in ammoFireing:
         for enemy in pests:
             if Rect(i[0], i[1], 16, 16).colliderect((enemy[0], enemy[1], 64, 64)):
                 ammoFireing.remove(i)
                 pests.remove(enemy)
                 score += 5
+                chance = random.random()
+                if chance >= 0.7:
+                    ammo += min(5, maxAmmo - ammo)
                 break
 
 
@@ -312,12 +317,20 @@ def shoot():
     if gameShoot and ammo > 0:
         ammoFireing.append([playerx + 55, playery + 50])
         ammo -= 1
-    for i in range(len(ammoFireing)):
+    # for i in range(len(ammoFireing)):
+    #     if not isPaused:
+    #         ammoFireing[i][0] += 5
+    #         drawAnimated("Assets/Bullet/Bullet_", (ammoFireing[i][0], ammoFireing[i][1]))
+    #     if isPaused:
+    #         drawImg("Assets/Bullet/Bullet_1.png", (ammoFireing[i][0], ammoFireing[i][1]))
+    for bullet in ammoFireing:
         if not isPaused:
-            ammoFireing[i][0] += 5
-            drawAnimated("Assets/Bullet/Bullet_", (ammoFireing[i][0], ammoFireing[i][1]))
+            bullet[0] += 5
+            drawAnimated("Assets/Bullet/Bullet_", (bullet[0], bullet[1]))
         if isPaused:
-            drawImg("Assets/Bullet/Bullet_1.png", (ammoFireing[i][0], ammoFireing[i][1]))
+            drawImg("Assets/Bullet/Bullet_1.png", (bullet[0], bullet[1]))
+        if bullet[0] >= 1000:
+            ammoFireing.remove(bullet)
 
 
 def gameHUD():
@@ -374,7 +387,13 @@ def game():
     gameHUD()
     moveDrawCharacter()
     shoot()
-    if len(pests) < 5:
+    # if len(pests) < 5 + int(min(math.floor(random.random()*waves*gameLevel),(10 * math.ceil(waves / 5)-enemySpawnedWave)*0.7)):
+    spawnRandomEnemy = random.randint(0, 10 * math.ceil(waves / 5) - enemySpawnedWave)
+    if len(pests) < 3 + spawnRandomEnemy:
+        # if 10 * math.ceil(waves / 5)-enemySpawnedWave <= 3:
+        #     createEnemy()
+        #     if len(pests) <=3:
+        #
         createEnemy()
     if updateEnemy():
         pages = 0  # temporary placeholder

@@ -39,6 +39,7 @@ gameMoveDown = False
 gameMoveForward = False
 gameMoveBack = False
 gameShoot = False
+firstSeedBag = False
 
 pages = 0  # 0 For Menu, 1 for Game, 2 for Settings, 3 for Instructions
 escapeReturn = 0
@@ -68,6 +69,7 @@ gameScoreText = Rect(110, 80, 40, 20)
 
 pests = []
 ammoFireing = []
+seedBag = []
 gameLevel = 1
 waves = 1
 health = 10000
@@ -151,9 +153,11 @@ def drawTextAndRect(aText, aRect, aFontSize=20, aFontColor=black, fontType=pixel
 
 
 def gameInit():
-    global pests, ammoFireing, gameLevel, waves, health, maxHealth, score, ammo, maxAmmo, playerx, playery, enemySpawnedWave
+    global pests, ammoFireing, gameLevel, waves, health, maxHealth, score, ammo, maxAmmo, playerx, playery, enemySpawnedWave, seedBag
+    global isPaused, gameMovepUp,gameMoveDown,gameMoveForward,gameMoveBack,gameShoot,firstSeedBag
     pests = []
     ammoFireing = []
+    seedBag = []
     gameLevel = 1
     waves = 1
     health = 10000
@@ -163,6 +167,14 @@ def gameInit():
     maxAmmo = 2000
     playerx, playery = 100, 350
     enemySpawnedWave = 0
+
+    isPaused = False
+    gameMovepUp = False
+    gameMoveDown = False
+    gameMoveForward = False
+    gameMoveBack = False
+    gameShoot = False
+    firstSeedBag = False
 
 
 def LoadingScreenStart(isDisplayed):
@@ -332,6 +344,38 @@ def shoot():
         if bullet[0] >= 1000:
             ammoFireing.remove(bullet)
 
+def seedBagBuff():
+    global firstSeedBag, seedBag,score,ammo,maxAmmo,health,maxHealth
+    if not firstSeedBag and waves % 2 == 0:
+        x = 1000
+        # y = random.randint(120, 600)
+        y = noCollision(120, 600, 0)
+        if y != False:
+            speed = int(waves * gameLevel * 0.2 + 1)
+            enemyNamePath = "Assets/SeedBag/SeedBag32px_1.png"
+            reflect = False
+            seedBag.append([x, y, speed, enemyNamePath, reflect])
+            firstSeedBag = True
+    elif waves % 2 ==1:
+        firstSeedBag = False
+    for bag in seedBag:
+        for i in ammoFireing:
+            if Rect(i[0], i[1], 16, 16).colliderect((bag[0], bag[1], 32, 32)):
+                ammoFireing.remove(i)
+                seedBag.remove(bag)
+                score += 10
+                ammo += 10
+                maxAmmo+=10
+                health +=20
+                maxHealth+=20
+                break
+        if not isPaused:
+            bag[0] -= bag[2]
+            if bag[0] < 0:
+                seedBag.remove(bag)
+        drawImg(bag[3], (bag[0], bag[1]), aScale=1, reflect=bag[4])
+
+
 
 def gameHUD():
     healthBar = int((health / maxHealth) * 200)
@@ -389,7 +433,7 @@ def game():
     shoot()
     # if len(pests) < 5 + int(min(math.floor(random.random()*waves*gameLevel),(10 * math.ceil(waves / 5)-enemySpawnedWave)*0.7)):
     spawnRandomEnemy = random.randint(0, 10 * math.ceil(waves / 5) - enemySpawnedWave)
-    if len(pests) < 3 + spawnRandomEnemy:
+    if len(pests) < 3 + min(spawnRandomEnemy, 3):
         # if 10 * math.ceil(waves / 5)-enemySpawnedWave <= 3:
         #     createEnemy()
         #     if len(pests) <=3:
@@ -397,6 +441,7 @@ def game():
         createEnemy()
     if updateEnemy():
         pages = 0  # temporary placeholder
+    seedBagBuff()
 
 
 def instructions():

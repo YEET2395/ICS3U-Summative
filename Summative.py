@@ -21,7 +21,7 @@ lightBlue = (204, 255, 255)
 darkBlue = (30, 144, 255)
 treeGreen = (74, 153, 58)
 
-cheatMode = False
+cheatMode = True
 running = True
 startLoadingScreen = False
 inMenu = True
@@ -41,6 +41,8 @@ gameMoveForward = False
 gameMoveBack = False
 gameShoot = False
 firstSeedBag = False
+gameOverStatus = False
+topScoresReset = True #For resetting purposes during testing
 
 pages = 0  # 0 For Menu, 1 for Game, 2 for Settings, 3 for Instructions
 escapeReturn = 0
@@ -82,6 +84,7 @@ playerx, playery = 100, 350
 listofRandomEnemy = ["Assets/Forest/Bear_Walk_", "Assets/Forest/GnollBrute_Walk_", "Assets/Forest/NormalMushroom_Walk_",
                      "Assets/Forest/Wolf_Walk_"]  # Placeholder for now
 enemySpawnedWave = 0
+topScore = None
 
 if cheatMode:
     health = 10000
@@ -128,6 +131,12 @@ keyShoot = key.key_code(playerShoot)
 #         offset = pattern[(i // pixelSize) % len(pattern)]
 #         draw.rect(screen, color, (x + w - pixelSize + offset, y + i, pixelSize, pixelSize))
 
+def resetTop():
+    scoreData = open("Data/highScores.txt", "w")
+    scoreData.write(str(0))
+    scoreData.close()
+
+
 def drawBorderRect(aRectangle, aColorRect=white, aColorBorder=black, pixel=False, pixelSize=3):
     draw.rect(screen, aColorRect, aRectangle)
     if pixel:
@@ -161,7 +170,7 @@ def drawTextAndRect(aText, aRect, aFontSize=20, aFontColor=black, fontType=pixel
 
 def gameInit():
     global pests, ammoFireing, gameLevel, waves, health, maxHealth, score, ammo, maxAmmo, playerx, playery, enemySpawnedWave, seedBag
-    global isPaused, gameMovepUp, gameMoveDown, gameMoveForward, gameMoveBack, gameShoot, firstSeedBag
+    global isPaused, gameMovepUp, gameMoveDown, gameMoveForward, gameMoveBack, gameShoot, firstSeedBag, gameOverStatus
     pests = []
     ammoFireing = []
     seedBag = []
@@ -182,9 +191,10 @@ def gameInit():
     gameMoveBack = False
     gameShoot = False
     firstSeedBag = False
+    gameOverStatus = False
 
     if cheatMode:
-        health = 10000
+        health = 10
         maxHealth = 10000
         ammo = 2000
         maxAmmo = 2000
@@ -436,10 +446,24 @@ def moveDrawCharacter():
         drawImg("Assets/Forest/Ranger_Idle_4.png", (playerx, playery), 2.5)
 
 
+def readWriteTopScore():
+    global topScore
+    scoreData = open("Data/highScores.txt", "r")
+    currentTop = scoreData.readline()
+    scoreData.close()
+    if score > int(currentTop):
+        scoreData = open("Data/highScores.txt", "w")
+        scoreData.write(str(score))
+        scoreData.close()
+        currentTop = score
+    topScore = currentTop
+
+
 def game():
     global pages
     global escapeReturn
     global playerx, playery
+    global gameOverStatus, isPaused
     if initGameStart:
         gameInit()
     escapeReturn = 0
@@ -447,6 +471,7 @@ def game():
     gameHUD()
     moveDrawCharacter()
     shoot()
+    readWriteTopScore()
     # if len(pests) < 5 + int(min(math.floor(random.random()*waves*gameLevel),(10 * math.ceil(waves /
     # 5)-enemySpawnedWave)*0.7)):
     spawnRandomEnemy = random.randint(0, 10 * math.ceil(waves / 5) - enemySpawnedWave)
@@ -457,7 +482,9 @@ def game():
         #
         createEnemy()
     if updateEnemy():
-        pages = 0  # temporary placeholder
+        gameOverStatus = True
+        isPaused = True
+        # pages = 0  # temporary placeholder
     seedBagBuff()
 
 
@@ -505,6 +532,34 @@ def paused():
     # pausedAnimation = True
 
 
+def gameOver():
+    global gameMovepUp, gameMoveDown, gameMoveForward, gameMoveBack
+    gameMovepUp, gameMoveDown, gameMoveForward, gameMoveBack = False, False, False, False
+    overlay = Surface((1000, 700), SRCALPHA)
+    overlay.fill((0, 0, 0, 180))
+    screen.blit(overlay, (0, 0))
+    draw.rect(screen, white, pauseMenu)
+    centerTextOnRect("Game Over", pauseTitleText, aFontSize=80, aFontColor=white)
+    centerTextOnRect("Your Score", Rect(pauseContinue[0], pauseContinue[1], pauseContinue[2], pauseContinue[3] // 2),
+                     aFontSize=30)
+    centerTextOnRect(str(score), Rect(pauseContinue[0], pauseContinue[1] + pauseContinue[3] // 2, pauseContinue[2],
+                                      pauseContinue[3] // 2),
+                     aFontSize=30)
+    centerTextOnRect("Top Score",
+                     Rect(pauseInstruction[0], pauseInstruction[1], pauseInstruction[2], pauseInstruction[3] // 2),
+                     aFontSize=30)
+    centerTextOnRect(str(topScore),
+                     Rect(pauseInstruction[0], pauseInstruction[1] + pauseInstruction[3] // 2, pauseInstruction[2],
+                          pauseInstruction[3] // 2),
+                     aFontSize=30)
+    drawTextAndRect("Restart", pauseSetting, aFontSize=40, aFontColor=white, aColorRect=treeGreen, border=False)
+    drawTextAndRect("Return to Menu", pauseReturn, aFontSize=28, aFontColor=white, aColorRect=treeGreen, border=False)
+    if collidePauseSetting:
+        draw.rect(screen, black, pauseSetting, 3)
+    if collidePauseReturn:
+        draw.rect(screen, black, pauseReturn, 3)
+
+
 while running:
     gameShoot = False
     initGameStart = False
@@ -545,7 +600,7 @@ while running:
                     collideMenuInstruction = False
                     collideMenuQuit = False
             if pages == 1:
-                if isPaused:
+                if isPaused and not gameOverStatus:
                     if pauseContinue.collidepoint(e.pos):
                         if e.type == MOUSEMOTION:
                             collidePauseContinue = True
@@ -576,6 +631,26 @@ while running:
                         collidePauseSetting = False
                         collidePauseInstruction = False
                         collidePauseReturn = False
+                elif gameOverStatus:
+                    if pauseSetting.collidepoint(e.pos):
+                        if e.type == MOUSEMOTION:
+                            collidePauseSetting = True
+                        else:
+                            collidePauseSetting = False
+                            initGameStart = True
+                            gameOverStatus = False
+                            isPaused = False
+                    elif pauseReturn.collidepoint(e.pos):
+                        if e.type == MOUSEMOTION:
+                            collidePauseReturn = True
+                        else:
+                            collidePauseReturn = False
+                            pages = 0
+                            isPaused = False
+                            gameOverStatus = False
+                    else:
+                        collidePauseReturn = False
+                        collidePauseSetting = False
         if e.type == KEYDOWN:
             gameShoot = False
             if pages == 1 and not isPaused:
@@ -609,7 +684,9 @@ while running:
         menu()
     if pages == 1:
         game()
-    if isPaused:
+    if gameOverStatus:
+        gameOver()
+    if isPaused and not gameOverStatus:
         paused()
     if pages == 2:
         settings()
@@ -618,3 +695,6 @@ while running:
         instructions()
         # pass  # placeholder
     display.update()
+
+if topScoresReset:
+    resetTop()

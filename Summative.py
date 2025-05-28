@@ -20,10 +20,11 @@ blue = (0, 0, 255)
 lightBlue = (204, 255, 255)
 darkBlue = (30, 144, 255)
 treeGreen = (74, 153, 58)
+lightGreen = (186, 252, 191)
 
 # Debugging Purposes
-cheatMode = False
-topScoresReset = False  # For resetting purposes during testing
+cheatMode = True
+topScoresReset = True  # For resetting purposes during testing
 
 running = True
 startLoadingScreen = False
@@ -36,6 +37,9 @@ collidePauseContinue = False
 collidePauseInstruction = False
 collidePauseSetting = False
 collidePauseReturn = False
+collideSettingEasy = False
+collideSettingNorm = False
+collideSettingHard = False
 isPaused = False
 pausedAnimation = False
 gameMovepUp = False
@@ -71,6 +75,11 @@ gameHPText = Rect(15, 20, 40, 20)
 gameAmmoText = Rect(15, 50, 40, 20)
 gameWaveText = Rect(15, 80, 40, 20)
 gameScoreText = Rect(110, 80, 40, 20)
+settingTitleText = Rect(300, 50, 400, 70)
+settingLevelText = Rect(50, 150, 100, 50)
+settingLevelEasy = Rect(650, 150, 100, 50)
+settingLevelNorm = Rect(750, 150, 100, 50)
+settingLevelHard = Rect(850, 150, 100, 50)
 
 pests = []
 ammoFireing = []
@@ -496,8 +505,31 @@ def instructions():
 
 
 def settings():
-    screen.fill(black)
-    centerTextOnRect("This is Settings Page (WIP)", Rect(0, 0, 1000, 700), aFontSize=60, aFontColor=white)
+    screen.fill(white)
+    # centerTextOnRect("This is Settings Page (WIP)", Rect(0, 0, 1000, 700), aFontSize=60, aFontColor=white)
+    centerTextOnRect("Settings", settingTitleText, aFontSize=80)
+    settingLevel()
+
+
+def settingLevel():
+    textRender("Level", settingLevelText, aFontSize=30)
+    drawTextAndRect("Easy", settingLevelEasy, aFontSize=25, aColorRect=treeGreen, border=False, aFontColor=white)
+    drawTextAndRect("Normal", settingLevelNorm, aFontSize=25, aColorRect=treeGreen, border=False, aFontColor=white)
+    drawTextAndRect("Hard", settingLevelHard, aFontSize=25, aColorRect=treeGreen, border=False, aFontColor=white)
+    if gameLevel == 1:
+        drawTextAndRect("Normal", settingLevelNorm, aFontSize=25, aColorRect=lightGreen, border=True, aFontColor=black)
+    if gameLevel == 0.5:
+        drawTextAndRect("Easy", settingLevelEasy, aFontSize=25, aColorRect=lightGreen, border=True, aFontColor=black)
+    if gameLevel == 1.5:
+        drawTextAndRect("Hard", settingLevelHard, aFontSize=25, aColorRect=lightGreen, border=True, aFontColor=black)
+    draw.line(screen, black, (750, 150), (750, 199), width=2)
+    draw.line(screen, black, (850, 150), (850, 199), width=2)
+    if collideSettingEasy:
+        draw.rect(screen, black, settingLevelEasy, 3)
+    if collideSettingNorm:
+        draw.rect(screen, black, settingLevelNorm, 3)
+    if collideSettingHard:
+        draw.rect(screen, black, settingLevelHard, 3)
 
 
 def paused():
@@ -653,6 +685,41 @@ while running:
                     else:
                         collidePauseReturn = False
                         collidePauseSetting = False
+            if pages == 2:
+                if settingLevelEasy.collidepoint(e.pos):
+                    if e.type == MOUSEMOTION:
+                        collideSettingEasy = True
+                        collideSettingNorm = False
+                        collideSettingHard = False
+                    else:
+                        collideSettingEasy = False
+                        collideSettingNorm = False
+                        collideSettingHard = False
+                        gameLevel = 0.5
+                elif settingLevelNorm.collidepoint(e.pos):
+                    if e.type == MOUSEMOTION:
+                        collideSettingNorm = True
+                        collideSettingEasy = False
+                        collideSettingHard = False
+                    else:
+                        collideSettingNorm = False
+                        collideSettingEasy = False
+                        collideSettingHard = False
+                        gameLevel = 1
+                elif settingLevelHard.collidepoint(e.pos):
+                    if e.type == MOUSEMOTION:
+                        collideSettingHard = True
+                        collideSettingEasy = False
+                        collideSettingNorm = False
+                    else:
+                        collideSettingHard = False
+                        collideSettingEasy = False
+                        collideSettingNorm = False
+                        gameLevel = 1.5
+                else:
+                    collideSettingEasy = False
+                    collideSettingNorm = False
+                    collideSettingHard = False
         if e.type == KEYDOWN:
             gameShoot = False
             if pages == 1 and not isPaused:

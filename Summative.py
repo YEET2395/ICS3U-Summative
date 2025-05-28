@@ -23,7 +23,7 @@ treeGreen = (74, 153, 58)
 lightGreen = (186, 252, 191)
 
 # Debugging Purposes
-cheatMode = True
+cheatMode = False
 topScoresReset = True  # For resetting purposes during testing
 
 running = True
@@ -40,9 +40,19 @@ collidePauseReturn = False
 collideSettingEasy = False
 collideSettingNorm = False
 collideSettingHard = False
+collideSettingUp = False
+collideSettingDown = False
+collideSettingForward = False
+collideSettingBackward = False
+collideSettingShoot = False
+clickSettingUp = False
+clickSettingDown = False
+clickSettingForward = False
+clickSettingBackward = False
+clickSettingShoot = False
 isPaused = False
 pausedAnimation = False
-gameMovepUp = False
+gameMoveUp = False
 gameMoveDown = False
 gameMoveForward = False
 gameMoveBack = False
@@ -80,11 +90,22 @@ settingLevelText = Rect(50, 150, 100, 50)
 settingLevelEasy = Rect(650, 150, 100, 50)
 settingLevelNorm = Rect(750, 150, 100, 50)
 settingLevelHard = Rect(850, 150, 100, 50)
+settingKeyBindText = Rect(300, 225, 400, 70)
+settingKeyUpText = Rect(50, 325, 100, 50)
+settingKeyDownText = Rect(50, 400, 100, 50)
+settingKeyForwardText = Rect(50, 475, 100, 50)
+settingKeyBackwardText = Rect(50, 550, 100, 50)
+settingKeyShootText = Rect(50, 625, 100, 50)
+settingKeyUp = Rect(650, 325, 300, 50)
+settingKeyDown = Rect(650, 400, 300, 50)
+settingKeyForward = Rect(650, 475, 300, 50)
+settingKeyBackward = Rect(650, 550, 300, 50)
+settingKeyShoot = Rect(650, 625, 300, 50)
 
 pests = []
-ammoFireing = []
+ammoFiring = []
 seedBag = []
-gameLevel = 1
+# gameLevel = 1
 waves = 1
 health = 100
 maxHealth = 100
@@ -92,7 +113,7 @@ score = 0
 ammo = 20
 maxAmmo = 20
 playerx, playery = 100, 350
-listofRandomEnemy = ["Assets/Forest/Bear_Walk_", "Assets/Forest/GnollBrute_Walk_", "Assets/Forest/NormalMushroom_Walk_",
+listOfRandomEnemy = ["Assets/Forest/Bear_Walk_", "Assets/Forest/GnollBrute_Walk_", "Assets/Forest/NormalMushroom_Walk_",
                      "Assets/Forest/Wolf_Walk_"]  # Placeholder for now
 enemySpawnedWave = 0
 topScore = None
@@ -103,15 +124,30 @@ if cheatMode:
     ammo = 2000
     maxAmmo = 2000
 
-movePlayerUp = "w"
-movePlayerDown = "s"
-movePlayerForward = "d"
-movePlayerBack = "a"
-playerShoot = " "
+# movePlayerUp = "w"
+# movePlayerDown = "s"
+# movePlayerForward = "d"
+# movePlayerBackward = "a"
+# playerShoot = " "
+
+difficultyRead = open("Data/difficulty.txt", "r")
+gameLevel = float(difficultyRead.readline())
+difficultyRead.close()
+
+keyBindRead = open("Data/keyBind.txt", "r")
+listOfKeys = list(keyBindRead.readline().split(","))
+keyBindRead.close()
+# print(listOfKeys)
+movePlayerUp = listOfKeys[0]
+movePlayerDown = listOfKeys[1]
+movePlayerForward = listOfKeys[2]
+movePlayerBackward = listOfKeys[3]
+playerShoot = listOfKeys[4]
+
 keyUp = key.key_code(movePlayerUp)
 keyDown = key.key_code(movePlayerDown)
 keyForward = key.key_code(movePlayerForward)
-keyBack = key.key_code(movePlayerBack)
+keyBackward = key.key_code(movePlayerBackward)
 keyShoot = key.key_code(playerShoot)
 
 
@@ -180,12 +216,11 @@ def drawTextAndRect(aText, aRect, aFontSize=20, aFontColor=black, fontType=pixel
 
 
 def gameInit():
-    global pests, ammoFireing, gameLevel, waves, health, maxHealth, score, ammo, maxAmmo, playerx, playery, enemySpawnedWave, seedBag
-    global isPaused, gameMovepUp, gameMoveDown, gameMoveForward, gameMoveBack, gameShoot, firstSeedBag, gameOverStatus
+    global pests, ammoFiring, gameLevel, waves, health, maxHealth, score, ammo, maxAmmo, playerx, playery, enemySpawnedWave, seedBag
+    global isPaused, gameMoveUp, gameMoveDown, gameMoveForward, gameMoveBack, gameShoot, firstSeedBag, gameOverStatus
     pests = []
-    ammoFireing = []
+    ammoFiring = []
     seedBag = []
-    gameLevel = 1
     waves = 1
     health = 100
     maxHealth = 100
@@ -196,7 +231,7 @@ def gameInit():
     enemySpawnedWave = 0
 
     isPaused = False
-    gameMovepUp = False
+    gameMoveUp = False
     gameMoveDown = False
     gameMoveForward = False
     gameMoveBack = False
@@ -303,7 +338,7 @@ def createEnemy():
     y = noCollision(120, 600, 0)
     if y != False:
         speed = int(waves * gameLevel * 0.2 + 1)
-        enemyNamePath = random.choice(listofRandomEnemy)
+        enemyNamePath = random.choice(listOfRandomEnemy)
         reflect = True
         pests.append([x, y, speed, enemyNamePath, reflect])
         enemySpawnedWave += 1
@@ -349,10 +384,10 @@ def isHit():
     global pests
     global score
     global ammo
-    for i in ammoFireing:
+    for i in ammoFiring:
         for enemy in pests:
             if Rect(i[0], i[1], 16, 16).colliderect((enemy[0], enemy[1], 64, 64)):
-                ammoFireing.remove(i)
+                ammoFiring.remove(i)
                 pests.remove(enemy)
                 score += 5
                 chance = random.random()
@@ -364,22 +399,22 @@ def isHit():
 def shoot():
     global ammo
     if gameShoot and ammo > 0:
-        ammoFireing.append([playerx + 55, playery + 50])
+        ammoFiring.append([playerx + 55, playery + 50])
         ammo -= 1
-    # for i in range(len(ammoFireing)):
+    # for i in range(len(ammoFiring)):
     #     if not isPaused:
-    #         ammoFireing[i][0] += 5
-    #         drawAnimated("Assets/Bullet/Bullet_", (ammoFireing[i][0], ammoFireing[i][1]))
+    #         ammoFiring[i][0] += 5
+    #         drawAnimated("Assets/Bullet/Bullet_", (ammoFiring[i][0], ammoFiring[i][1]))
     #     if isPaused:
-    #         drawImg("Assets/Bullet/Bullet_1.png", (ammoFireing[i][0], ammoFireing[i][1]))
-    for bullet in ammoFireing:
+    #         drawImg("Assets/Bullet/Bullet_1.png", (ammoFiring[i][0], ammoFiring[i][1]))
+    for bullet in ammoFiring:
         if not isPaused:
             bullet[0] += 5
             drawAnimated("Assets/Bullet/Bullet_", (bullet[0], bullet[1]))
         if isPaused:
             drawImg("Assets/Bullet/Bullet_1.png", (bullet[0], bullet[1]))
         if bullet[0] >= 1000:
-            ammoFireing.remove(bullet)
+            ammoFiring.remove(bullet)
 
 
 def seedBagBuff():
@@ -397,9 +432,9 @@ def seedBagBuff():
     elif waves % 2 == 1:
         firstSeedBag = False
     for bag in seedBag:
-        for i in ammoFireing:
+        for i in ammoFiring:
             if Rect(i[0], i[1], 16, 16).colliderect((bag[0], bag[1], 32, 32)):
-                ammoFireing.remove(i)
+                ammoFiring.remove(i)
                 seedBag.remove(bag)
                 score += 10
                 ammo += 10
@@ -436,7 +471,7 @@ def gameHUD():
 def moveDrawCharacter():
     global playerx, playery
     if not isPaused:
-        if gameMovepUp:
+        if gameMoveUp:
             playery -= 2
             if playery <= 100:
                 playery = 100
@@ -499,6 +534,34 @@ def game():
     seedBagBuff()
 
 
+def gameOver():
+    global gameMoveUp, gameMoveDown, gameMoveForward, gameMoveBack
+    gameMoveUp, gameMoveDown, gameMoveForward, gameMoveBack = False, False, False, False
+    overlay = Surface((1000, 700), SRCALPHA)
+    overlay.fill((0, 0, 0, 180))
+    screen.blit(overlay, (0, 0))
+    draw.rect(screen, white, pauseMenu)
+    centerTextOnRect("Game Over", pauseTitleText, aFontSize=80, aFontColor=white)
+    centerTextOnRect("Your Score", Rect(pauseContinue[0], pauseContinue[1], pauseContinue[2], pauseContinue[3] // 2),
+                     aFontSize=30)
+    centerTextOnRect(str(score), Rect(pauseContinue[0], pauseContinue[1] + pauseContinue[3] // 2, pauseContinue[2],
+                                      pauseContinue[3] // 2),
+                     aFontSize=30)
+    centerTextOnRect("Top Score",
+                     Rect(pauseInstruction[0], pauseInstruction[1], pauseInstruction[2], pauseInstruction[3] // 2),
+                     aFontSize=30)
+    centerTextOnRect(str(topScore),
+                     Rect(pauseInstruction[0], pauseInstruction[1] + pauseInstruction[3] // 2, pauseInstruction[2],
+                          pauseInstruction[3] // 2),
+                     aFontSize=30)
+    drawTextAndRect("Restart", pauseSetting, aFontSize=40, aFontColor=white, aColorRect=treeGreen, border=False)
+    drawTextAndRect("Return to Menu", pauseReturn, aFontSize=28, aFontColor=white, aColorRect=treeGreen, border=False)
+    if collidePauseSetting:
+        draw.rect(screen, black, pauseSetting, 3)
+    if collidePauseReturn:
+        draw.rect(screen, black, pauseReturn, 3)
+
+
 def instructions():
     screen.fill(white)
     centerTextOnRect("This is Instructions Page (WIP)", Rect(0, 0, 1000, 700), aFontSize=60)
@@ -509,6 +572,7 @@ def settings():
     # centerTextOnRect("This is Settings Page (WIP)", Rect(0, 0, 1000, 700), aFontSize=60, aFontColor=white)
     centerTextOnRect("Settings", settingTitleText, aFontSize=80)
     settingLevel()
+    settingKeyBind()
 
 
 def settingLevel():
@@ -520,7 +584,7 @@ def settingLevel():
         drawTextAndRect("Normal", settingLevelNorm, aFontSize=25, aColorRect=lightGreen, border=True, aFontColor=black)
     if gameLevel == 0.5:
         drawTextAndRect("Easy", settingLevelEasy, aFontSize=25, aColorRect=lightGreen, border=True, aFontColor=black)
-    if gameLevel == 1.5:
+    if gameLevel == 2:
         drawTextAndRect("Hard", settingLevelHard, aFontSize=25, aColorRect=lightGreen, border=True, aFontColor=black)
     draw.line(screen, black, (750, 150), (750, 199), width=2)
     draw.line(screen, black, (850, 150), (850, 199), width=2)
@@ -530,12 +594,49 @@ def settingLevel():
         draw.rect(screen, black, settingLevelNorm, 3)
     if collideSettingHard:
         draw.rect(screen, black, settingLevelHard, 3)
+    difficultyWrite = open("Data/difficulty.txt", "w")
+    difficultyWrite.write(str(gameLevel))
+    difficultyWrite.close()
+
+
+def settingKeyBind():
+    global keyUp, keyDown, keyForward, keyBackward, keyShoot
+    centerTextOnRect("Key Binds", settingKeyBindText, aFontSize=60)
+    textRender("Move Up", settingKeyUpText, aFontSize=25)
+    textRender("Move Down", settingKeyDownText, aFontSize=25)
+    textRender("Move Forward", settingKeyForwardText, aFontSize=25)
+    textRender("Move Backward", settingKeyBackwardText, aFontSize=25)
+    textRender("Shoot", settingKeyShootText, aFontSize=25)
+    drawTextAndRect(movePlayerUp.upper(), settingKeyUp, aFontSize=20)
+    drawTextAndRect(movePlayerDown.upper(), settingKeyDown, aFontSize=20)
+    drawTextAndRect(movePlayerForward.upper(), settingKeyForward, aFontSize=20)
+    drawTextAndRect(movePlayerBackward.upper(), settingKeyBackward, aFontSize=20)
+    drawTextAndRect(playerShoot.upper(), settingKeyShoot, aFontSize=20)
+    if clickSettingUp:
+        drawTextAndRect(movePlayerUp.upper(), settingKeyUp, aFontSize=20, aColorRect=lightGreen)
+    if clickSettingDown:
+        drawTextAndRect(movePlayerDown.upper(), settingKeyDown, aFontSize=20, aColorRect=lightGreen)
+    if clickSettingForward:
+        drawTextAndRect(movePlayerForward.upper(), settingKeyForward, aFontSize=20, aColorRect=lightGreen)
+    if clickSettingBackward:
+        drawTextAndRect(movePlayerBackward.upper(), settingKeyBackward, aFontSize=20, aColorRect=lightGreen)
+    if clickSettingShoot:
+        drawTextAndRect(playerShoot.upper(), settingKeyShoot, aFontSize=20, aColorRect=lightGreen)
+
+    keyUp = key.key_code(movePlayerUp)
+    keyDown = key.key_code(movePlayerDown)
+    keyForward = key.key_code(movePlayerForward)
+    keyBackward = key.key_code(movePlayerBackward)
+    keyShoot = key.key_code(playerShoot)
+    keyBindWrite = open("Data/keyBind.txt", "w")
+    keyBindWrite.write(",".join([movePlayerUp, movePlayerDown, movePlayerForward, movePlayerBackward, playerShoot]))
+    keyBindWrite.close()
 
 
 def paused():
     global escapeReturn
-    global gameMovepUp, gameMoveDown, gameMoveForward, gameMoveBack
-    gameMovepUp, gameMoveDown, gameMoveForward, gameMoveBack = False, False, False, False
+    global gameMoveUp, gameMoveDown, gameMoveForward, gameMoveBack
+    gameMoveUp, gameMoveDown, gameMoveForward, gameMoveBack = False, False, False, False
     overlay = Surface((1000, 700), SRCALPHA)
     escapeReturn = 1
     # Dynamically Render the darkening, failed
@@ -564,34 +665,6 @@ def paused():
         draw.rect(screen, black, pauseReturn, 3)
     # display.update()
     # pausedAnimation = True
-
-
-def gameOver():
-    global gameMovepUp, gameMoveDown, gameMoveForward, gameMoveBack
-    gameMovepUp, gameMoveDown, gameMoveForward, gameMoveBack = False, False, False, False
-    overlay = Surface((1000, 700), SRCALPHA)
-    overlay.fill((0, 0, 0, 180))
-    screen.blit(overlay, (0, 0))
-    draw.rect(screen, white, pauseMenu)
-    centerTextOnRect("Game Over", pauseTitleText, aFontSize=80, aFontColor=white)
-    centerTextOnRect("Your Score", Rect(pauseContinue[0], pauseContinue[1], pauseContinue[2], pauseContinue[3] // 2),
-                     aFontSize=30)
-    centerTextOnRect(str(score), Rect(pauseContinue[0], pauseContinue[1] + pauseContinue[3] // 2, pauseContinue[2],
-                                      pauseContinue[3] // 2),
-                     aFontSize=30)
-    centerTextOnRect("Top Score",
-                     Rect(pauseInstruction[0], pauseInstruction[1], pauseInstruction[2], pauseInstruction[3] // 2),
-                     aFontSize=30)
-    centerTextOnRect(str(topScore),
-                     Rect(pauseInstruction[0], pauseInstruction[1] + pauseInstruction[3] // 2, pauseInstruction[2],
-                          pauseInstruction[3] // 2),
-                     aFontSize=30)
-    drawTextAndRect("Restart", pauseSetting, aFontSize=40, aFontColor=white, aColorRect=treeGreen, border=False)
-    drawTextAndRect("Return to Menu", pauseReturn, aFontSize=28, aFontColor=white, aColorRect=treeGreen, border=False)
-    if collidePauseSetting:
-        draw.rect(screen, black, pauseSetting, 3)
-    if collidePauseReturn:
-        draw.rect(screen, black, pauseReturn, 3)
 
 
 while running:
@@ -715,21 +788,62 @@ while running:
                         collideSettingHard = False
                         collideSettingEasy = False
                         collideSettingNorm = False
-                        gameLevel = 1.5
+                        gameLevel = 2
                 else:
                     collideSettingEasy = False
                     collideSettingNorm = False
                     collideSettingHard = False
+                if settingKeyUp.collidepoint(e.pos):
+                    if e.type == MOUSEMOTION:
+                        collideSettingUp = True
+                    else:
+                        clickSettingUp = True
+                        collideSettingUp = False
+                elif settingKeyDown.collidepoint(e.pos):
+                    if e.type == MOUSEMOTION:
+                        collideSettingDown = True
+                    else:
+                        clickSettingDown = True
+                        collideSettingDown = False
+                elif settingKeyForward.collidepoint(e.pos):
+                    if e.type == MOUSEMOTION:
+                        collideSettingForward = True
+                    else:
+                        clickSettingForward = True
+                        collideSettingForward = False
+                elif settingKeyBackward.collidepoint(e.pos):
+                    if e.type == MOUSEMOTION:
+                        collideSettingBackward = True
+                    else:
+                        clickSettingBackward = True
+                        collideSettingBackward = False
+                elif settingKeyShoot.collidepoint(e.pos):
+                    if e.type == MOUSEMOTION:
+                        collideSettingShoot = True
+                    else:
+                        clickSettingShoot = True
+                        collideSettingShoot = False
+                else:
+                    collideSettingUp = False
+                    collideSettingDown = False
+                    collideSettingForward = False
+                    collideSettingBackward = False
+                    collideSettingShoot = False
+                    clickSettingUp = False
+                    clickSettingDown = False
+                    clickSettingForward = False
+                    clickSettingBackward = False
+                    clickSettingShoot = False
         if e.type == KEYDOWN:
             gameShoot = False
             if pages == 1 and not isPaused:
                 if e.key == keyUp:
-                    gameMovepUp = True
+                    gameMoveUp = True
                 elif e.key == keyDown:
                     gameMoveDown = True
                 if e.key == keyForward:
                     gameMoveForward = True
-                elif e.key == keyBack:
+                elif e.key == keyBackward:
                     gameMoveBack = True
                 if e.key == keyShoot:
                     gameShoot = True
@@ -737,16 +851,61 @@ while running:
                 pages = escapeReturn
             elif e.key == K_ESCAPE and pages == 1:
                 isPaused = not isPaused
+            if e.key == K_SPACE and pages == 2 and clickSettingShoot:
+                playerShoot = "space"
+                clickSettingShoot = False
+            elif e.key == K_RETURN and pages == 2 and clickSettingShoot:
+                playerShoot = "return"
+                clickSettingShoot = False
+            elif e.key == K_SPACE and pages == 2 and clickSettingUp:
+                movePlayerUp = "space"
+                clickSettingUp = False
+            elif e.key == K_RETURN and pages == 2 and clickSettingUp:
+                movePlayerUp = "return"
+                clickSettingUp = False
+            elif e.key == K_SPACE and pages == 2 and clickSettingDown:
+                movePlayerDown = "space"
+                clickSettingDown = False
+            elif e.key == K_RETURN and pages == 2 and clickSettingDown:
+                movePlayerDown = "return"
+                clickSettingDown = False
+            elif e.key == K_SPACE and pages == 2 and clickSettingForward:
+                movePlayerForward = "space"
+                clickSettingForward = False
+            elif e.key == K_RETURN and pages == 2 and clickSettingForward:
+                movePlayerForward = "return"
+                clickSettingForward = False
+            elif e.key == K_SPACE and pages == 2 and clickSettingBackward:
+                movePlayerBackward = "space"
+                clickSettingBackward = False
+            elif e.key == K_RETURN and pages == 2 and clickSettingBackward:
+                movePlayerBackward = "return"
+                clickSettingBackward = False
+            elif clickSettingShoot:
+                playerShoot = e.unicode
+                clickSettingShoot = False
+            elif clickSettingUp:
+                movePlayerUp = e.unicode
+                clickSettingUp = False
+            elif clickSettingDown:
+                movePlayerDown = e.unicode
+                clickSettingDown = False
+            elif clickSettingForward:
+                movePlayerForward = e.unicode
+                clickSettingForward = False
+            elif clickSettingBackward:
+                movePlayerBackward = e.unicode
+                clickSettingBackward = False
         if e.type == KEYUP:
             gameShoot = False
             if pages == 1 and not isPaused:
                 if e.key == keyUp:
-                    gameMovepUp = False
+                    gameMoveUp = False
                 if e.key == keyDown:
                     gameMoveDown = False
                 if e.key == keyForward:
                     gameMoveForward = False
-                if e.key == keyBack:
+                if e.key == keyBackward:
                     gameMoveBack = False
 
     if pages == 0:

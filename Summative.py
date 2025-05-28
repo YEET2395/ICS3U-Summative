@@ -23,8 +23,7 @@ treeGreen = (74, 153, 58)
 
 # Debugging Purposes
 cheatMode = False
-topScoresReset = False #For resetting purposes during testing
-
+topScoresReset = False  # For resetting purposes during testing
 
 running = True
 startLoadingScreen = False

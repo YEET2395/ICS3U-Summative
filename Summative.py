@@ -21,7 +21,11 @@ lightBlue = (204, 255, 255)
 darkBlue = (30, 144, 255)
 treeGreen = (74, 153, 58)
 
-cheatMode = True
+# Debugging Purposes
+cheatMode = False
+topScoresReset = False #For resetting purposes during testing
+
+
 running = True
 startLoadingScreen = False
 inMenu = True
@@ -42,7 +46,6 @@ gameMoveBack = False
 gameShoot = False
 firstSeedBag = False
 gameOverStatus = False
-topScoresReset = True #For resetting purposes during testing
 
 pages = 0  # 0 For Menu, 1 for Game, 2 for Settings, 3 for Instructions
 escapeReturn = 0

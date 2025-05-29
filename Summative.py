@@ -115,7 +115,7 @@ maxAmmo = 20
 playerx, playery = 100, 350
 playerSpeed = 0
 listOfRandomEnemy = ["Assets/Forest/Bear_Walk_", "Assets/Forest/GnollBrute_Walk_", "Assets/Forest/NormalMushroom_Walk_",
-                     "Assets/Forest/Wolf_Walk_"]  # Placeholder for now
+                     "Assets/Forest/Wolf_Walk_","Assets/Forest/Ent_Walk_"]
 enemySpawnedWave = 0
 topScore = None
 

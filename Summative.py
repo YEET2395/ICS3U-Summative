@@ -242,7 +242,7 @@ def gameInit():
     gameOverStatus = False
 
     if cheatMode:
-        health = 10
+        health = 10000
         maxHealth = 10000
         ammo = 2000
         maxAmmo = 2000

@@ -113,6 +113,7 @@ score = 0
 ammo = 20
 maxAmmo = 20
 playerx, playery = 100, 350
+playerSpeed = 0
 listOfRandomEnemy = ["Assets/Forest/Bear_Walk_", "Assets/Forest/GnollBrute_Walk_", "Assets/Forest/NormalMushroom_Walk_",
                      "Assets/Forest/Wolf_Walk_"]  # Placeholder for now
 enemySpawnedWave = 0
@@ -217,7 +218,7 @@ def drawTextAndRect(aText, aRect, aFontSize=20, aFontColor=black, fontType=pixel
 
 def gameInit():
     global pests, ammoFiring, gameLevel, waves, health, maxHealth, score, ammo, maxAmmo, playerx, playery, enemySpawnedWave, seedBag
-    global isPaused, gameMoveUp, gameMoveDown, gameMoveForward, gameMoveBack, gameShoot, firstSeedBag, gameOverStatus
+    global isPaused, gameMoveUp, gameMoveDown, gameMoveForward, gameMoveBack, gameShoot, firstSeedBag, gameOverStatus, playerSpeed
     pests = []
     ammoFiring = []
     seedBag = []
@@ -228,6 +229,7 @@ def gameInit():
     ammo = 20
     maxAmmo = 20
     playerx, playery = 100, 350
+    playerSpeed = 0
     enemySpawnedWave = 0
 
     isPaused = False
@@ -336,8 +338,14 @@ def createEnemy():
     x = 1000
     # y = random.randint(120, 600)
     y = noCollision(120, 600, 0)
+    if gameLevel == 2:
+        maxSpeed = 4
+    elif gameLevel == 1:
+        maxSpeed = 3
+    elif gameLevel == 0.5:
+        maxSpeed = 2
     if y != False:
-        speed = int(waves * gameLevel * 0.2 + 1)
+        speed = min(int(waves * gameLevel * 0.2 + 1), maxSpeed)
         enemyNamePath = random.choice(listOfRandomEnemy)
         reflect = True
         pests.append([x, y, speed, enemyNamePath, reflect])
@@ -418,13 +426,19 @@ def shoot():
 
 
 def seedBagBuff():
-    global firstSeedBag, seedBag, score, ammo, maxAmmo, health, maxHealth
+    global firstSeedBag, seedBag, score, ammo, maxAmmo, health, maxHealth, playerSpeed
     if not firstSeedBag and waves % 2 == 0:
         x = 1000
         # y = random.randint(120, 600)
         y = noCollision(120, 600, 0)
+        if gameLevel == 2:
+            maxSpeed = 4
+        elif gameLevel == 1:
+            maxSpeed = 3
+        elif gameLevel == 0.5:
+            maxSpeed = 2
         if y != False:
-            speed = int(waves * gameLevel * 0.2 + 1)
+            speed = min(int(waves * gameLevel * 0.2 + 1), maxSpeed)
             enemyNamePath = "Assets/SeedBag/SeedBag32px_1.png"
             reflect = False
             seedBag.append([x, y, speed, enemyNamePath, reflect])
@@ -437,11 +451,22 @@ def seedBagBuff():
                 ammoFiring.remove(i)
                 seedBag.remove(bag)
                 score += 10
-                ammo += 10
-                maxAmmo += 10
-                health += 20
-                maxHealth += 20
+                ammo += min(10+5*int(waves/5), 40)
+                maxAmmo += min(10+5*int(waves/5), 40)
+                health += min(20+5*int(waves/5), 50)
+                maxHealth += min(20+5*int(waves/5), 50)
+                playerSpeed += 1
                 break
+        if Rect(playerx, playery, 80, 80).colliderect((bag[0], bag[1], 32, 32)) and bag in seedBag:
+            seedBag.remove(bag)
+            score += 10
+            ammo += min(10 + 5 * int(waves / 5), 40)
+            maxAmmo += min(10 + 5 * int(waves / 5), 40)
+            health += min(20 + 5 * int(waves / 5), 50)
+            maxHealth += min(20 + 5 * int(waves / 5), 50)
+            playerSpeed += 1
+        if playerSpeed > 2:
+            playerSpeed = 2
         if not isPaused:
             bag[0] -= bag[2]
             if bag[0] < 0:
@@ -472,19 +497,19 @@ def moveDrawCharacter():
     global playerx, playery
     if not isPaused:
         if gameMoveUp:
-            playery -= 2
+            playery -= (2 + playerSpeed)
             if playery <= 100:
                 playery = 100
         if gameMoveDown:
-            playery += 2
+            playery += (2 + playerSpeed)
             if playery >= 600:
                 playery = 600
         if gameMoveForward:
-            playerx += 2
+            playerx += (2 + playerSpeed)
             if playerx >= 200:
                 playerx = 200
         if gameMoveBack:
-            playerx -= 2
+            playerx -= (2 + playerSpeed)
             if playerx <= 10:
                 playerx = 10
         drawAnimated("Assets/Forest/Ranger_Idle_", (playerx, playery), 2.5)

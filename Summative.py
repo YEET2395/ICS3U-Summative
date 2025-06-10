@@ -40,6 +40,7 @@ collidePauseReturn = False
 collideSettingEasy = False
 collideSettingNorm = False
 collideSettingHard = False
+collideSettingInstructionReturn = False
 collideSettingUp = False
 collideSettingDown = False
 collideSettingForward = False
@@ -90,6 +91,7 @@ settingLevelText = Rect(50, 150, 100, 50)
 settingLevelEasy = Rect(650, 150, 100, 50)
 settingLevelNorm = Rect(750, 150, 100, 50)
 settingLevelHard = Rect(850, 150, 100, 50)
+settingInstructionReturnButton = Rect(50, 60, 150, 60)
 settingKeyBindText = Rect(300, 225, 400, 70)
 settingKeyUpText = Rect(50, 325, 100, 50)
 settingKeyDownText = Rect(50, 400, 100, 50)
@@ -589,16 +591,25 @@ def gameOver():
 
 def instructions():
     screen.fill(white)
-    centerTextOnRect("This is Instructions Page (WIP)", Rect(0, 0, 1000, 700), aFontSize=60)
+    # centerTextOnRect("This is Instructions Page (WIP)", Rect(0, 0, 1000, 700), aFontSize=60)
+    centerTextOnRect("Instructions", settingTitleText, aFontSize=80)
+    settingInstructionReturn()
 
 
 def settings():
     screen.fill(white)
     # centerTextOnRect("This is Settings Page (WIP)", Rect(0, 0, 1000, 700), aFontSize=60, aFontColor=white)
     centerTextOnRect("Settings", settingTitleText, aFontSize=80)
+    settingInstructionReturn()
     settingLevel()
     settingKeyBind()
 
+def settingInstructionReturn():
+    if collideSettingInstructionReturn:
+        drawTextAndRect("Return", settingInstructionReturnButton, aFontSize=30, aColorRect=treeGreen, aFontColor=white, border=True)
+    else:
+        drawTextAndRect("Return", settingInstructionReturnButton, aFontSize=30, aColorRect=treeGreen, aFontColor=white,
+                        border=False)
 
 def settingLevel():
     textRender("Level", settingLevelText, aFontSize=30)
@@ -859,6 +870,23 @@ while running:
                     clickSettingForward = False
                     clickSettingBackward = False
                     clickSettingShoot = False
+                if settingInstructionReturnButton.collidepoint(e.pos):
+                    if e.type == MOUSEMOTION:
+                        collideSettingInstructionReturn = True
+                    else:
+                        pages = escapeReturn
+                        collideSettingInstructionReturn = False
+                else:
+                    collideSettingInstructionReturn = False
+            if pages == 3:
+                if settingInstructionReturnButton.collidepoint(e.pos):
+                    if e.type == MOUSEMOTION:
+                        collideSettingInstructionReturn = True
+                    else:
+                        pages = escapeReturn
+                        collideSettingInstructionReturn = False
+                else:
+                    collideSettingInstructionReturn = False
         if e.type == KEYDOWN:
             gameShoot = False
             if pages == 1 and not isPaused:

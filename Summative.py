@@ -117,9 +117,18 @@ maxAmmo = 20
 playerx, playery = 100, 350
 playerSpeed = 0
 listOfRandomEnemy = ["Assets/Forest/Bear_Walk_", "Assets/Forest/GnollBrute_Walk_", "Assets/Forest/NormalMushroom_Walk_",
-                     "Assets/Forest/Wolf_Walk_","Assets/Forest/Ent_Walk_"]
+                     "Assets/Forest/Wolf_Walk_", "Assets/Forest/Ent_Walk_"]
 enemySpawnedWave = 0
 topScore = None
+
+instructionsText1 = "So, Forest Protector, welcome to your forest, you will be protecting this forest and shooting off invasive enemies."
+instructionsText2 = "Press KEYBINDUP to move up, Press KEYBINDDOWN to move down, Press KEYBINDFORWARD to move forward, Press KEYBINDBACK to move back, Press KEYBINDSHOOT to shoot, Press ESC to pause and return."
+instructionsText3 = "Change Keybinds and difficulty at the SETTINGS Option and start the game in START! You can return to this instruction page by pressing INSTRUCTION."
+instructionsText4 = "The enemies will get faster as you progress through the game. Shoot or collect SEEDBAGS to gain health and ammo for your forest. Killing enemies will also have a chance of dropping ammo. GOOD LUCK!!"
+instructionList1 = list(instructionsText1.split())
+instructionList2 = list(instructionsText2.split())
+instructionList3 = list(instructionsText3.split())
+instructionList4 = list(instructionsText4.split())
 
 if cheatMode:
     health = 10000
@@ -216,6 +225,21 @@ def drawTextAndRect(aText, aRect, aFontSize=20, aFontColor=black, fontType=pixel
     else:
         draw.rect(screen, aColorRect, aRect)
     centerTextOnRect(aText, aRect, aFontSize, aFontColor, fontType)
+
+
+def switchLine(aList, maxLength, maxHeight, pos, aFontSize=20, aFontColor=black, fontType=pixelify):
+    posx = pos[0]
+    posy = pos[1]
+    spaceSize = font.Font(fontType, aFontSize).render(" ", True, aFontColor).get_size()[0]
+    for word in aList:
+        wordWidth, wordHeight = font.Font(fontType, aFontSize).render(word, True, aFontColor).get_size()
+        # print(posx,wordWidth)
+        if wordWidth + posx >= maxLength:
+            posx = pos[0]
+            posy += wordHeight
+        textRender(word, (posx, posy), aFontSize, aFontColor, fontType)
+        posx += wordWidth
+        posx += spaceSize
 
 
 def gameInit():
@@ -453,10 +477,10 @@ def seedBagBuff():
                 ammoFiring.remove(i)
                 seedBag.remove(bag)
                 score += 10
-                ammo += min(10+5*int(waves/5), 40)
-                maxAmmo += min(10+5*int(waves/5), 40)
-                health += min(20+5*int(waves/5), 50)
-                maxHealth += min(20+5*int(waves/5), 50)
+                ammo += min(10 + 5 * int(waves / 5), 40)
+                maxAmmo += min(10 + 5 * int(waves / 5), 40)
+                health += min(20 + 5 * int(waves / 5), 50)
+                maxHealth += min(20 + 5 * int(waves / 5), 50)
                 playerSpeed += 1
                 break
         if Rect(playerx, playery, 80, 80).colliderect((bag[0], bag[1], 32, 32)) and bag in seedBag:
@@ -593,6 +617,16 @@ def instructions():
     screen.fill(white)
     # centerTextOnRect("This is Instructions Page (WIP)", Rect(0, 0, 1000, 700), aFontSize=60)
     centerTextOnRect("Instructions", settingTitleText, aFontSize=80)
+    # print(list(instructionsText.split()))
+    instructionList2[1] = movePlayerUp.upper()
+    instructionList2[6] = movePlayerDown.upper()
+    instructionList2[11] = movePlayerForward.upper()
+    instructionList2[16] = movePlayerBackward.upper()
+    instructionList2[21] = playerShoot.upper()
+    switchLine(instructionList1, 950, 600, (50, 150), aFontSize=25)
+    switchLine(instructionList2, 950, 600, (50, 230), aFontSize=25)
+    switchLine(instructionList3, 950, 600, (50, 340), aFontSize=25)
+    switchLine(instructionList4, 950, 600, (50, 450), aFontSize=25)
     settingInstructionReturn()
 
 
@@ -606,10 +640,12 @@ def settings():
 
 def settingInstructionReturn():
     if collideSettingInstructionReturn:
-        drawTextAndRect("Return", settingInstructionReturnButton, aFontSize=30, aColorRect=treeGreen, aFontColor=white, border=True)
+        drawTextAndRect("Return", settingInstructionReturnButton, aFontSize=30, aColorRect=treeGreen, aFontColor=white,
+                        border=True)
     else:
         drawTextAndRect("Return", settingInstructionReturnButton, aFontSize=30, aColorRect=treeGreen, aFontColor=white,
                         border=False)
+
 
 def settingLevel():
     textRender("Level", settingLevelText, aFontSize=30)

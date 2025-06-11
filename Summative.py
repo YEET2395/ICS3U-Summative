@@ -370,6 +370,8 @@ def createEnemy():
         maxSpeed = 3
     elif gameLevel == 0.5:
         maxSpeed = 2
+    else:
+        maxSpeed = 3
     if y != False:
         speed = min(int(waves * gameLevel * 0.2 + 1), maxSpeed)
         enemyNamePath = random.choice(listOfRandomEnemy)
@@ -463,6 +465,8 @@ def seedBagBuff():
             maxSpeed = 3
         elif gameLevel == 0.5:
             maxSpeed = 2
+        else:
+            maxSpeed = 3
         if y != False:
             speed = min(int(waves * gameLevel * 0.2 + 1), maxSpeed)
             enemyNamePath = "Assets/SeedBag/SeedBag32px_1.png"
@@ -637,6 +641,7 @@ def settings():
     settingInstructionReturn()
     settingLevel()
     settingKeyBind()
+
 
 def settingInstructionReturn():
     if collideSettingInstructionReturn:

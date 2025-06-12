@@ -118,8 +118,13 @@ playerx, playery = 100, 350
 playerSpeed = 0
 listOfRandomEnemy = ["Assets/Forest/Bear_Walk_", "Assets/Forest/GnollBrute_Walk_", "Assets/Forest/NormalMushroom_Walk_",
                      "Assets/Forest/Wolf_Walk_", "Assets/Forest/Ent_Walk_"]
+listOfTreeBush = ["Assets/Lost Pixel Art - Forest/Trees/TreeResize_1 - ","Assets/Lost Pixel Art - Forest/Trees/TreeResize_2 - ","Assets/Lost Pixel Art - Forest/Bushes/BushResize - "]
+treeBushPos = []
+
 enemySpawnedWave = 0
 topScore = None
+
+
 
 instructionsText1 = "So, Forest Protector, welcome to your forest, you will be protecting this forest and shooting off invasive enemies."
 instructionsText2 = "Press KEYBINDUP to move up, Press KEYBINDDOWN to move down, Press KEYBINDFORWARD to move forward, Press KEYBINDBACK to move back, Press KEYBINDSHOOT to shoot, Press ESC to pause and return."
@@ -245,6 +250,7 @@ def switchLine(aList, maxLength, maxHeight, pos, aFontSize=20, aFontColor=black,
 def gameInit():
     global pests, ammoFiring, gameLevel, waves, health, maxHealth, score, ammo, maxAmmo, playerx, playery, enemySpawnedWave, seedBag
     global isPaused, gameMoveUp, gameMoveDown, gameMoveForward, gameMoveBack, gameShoot, firstSeedBag, gameOverStatus, playerSpeed
+    global treeBushPos
     pests = []
     ammoFiring = []
     seedBag = []
@@ -257,6 +263,7 @@ def gameInit():
     playerx, playery = 100, 350
     playerSpeed = 0
     enemySpawnedWave = 0
+    treeBushPos = []
 
     isPaused = False
     gameMoveUp = False
@@ -272,7 +279,11 @@ def gameInit():
         maxHealth = 10000
         ammo = 2000
         maxAmmo = 2000
-
+    for i in range(random.randint(3, 6)):
+        treePOS = noCollision(100,500,0,treeBush=True,xa=210,xb=800)
+        if treePOS!=False:
+            treeBushPos.append([treePOS[0],treePOS[1],random.choice(listOfTreeBush)])
+    # print(treeBushPos)
 
 def LoadingScreenStart(isDisplayed):
     if not isDisplayed:
@@ -383,19 +394,41 @@ def createEnemy():
             enemySpawnedWave = 0
 
 
-def noCollision(a, b, layer):
+def noCollision(a, b, layer,treeBush=False,xa=0,xb=0):
     out = random.randint(a, b)
     if layer == 10:
         return False
-    for i in pests:
-        # if (i[1] <= out <= i[1]+64 or out<=i[1]<=out+64) and 1000-i[0]<128:
-        if abs(i[1] - out) <= 64 and 1000 - i[0] < 128:
-            return noCollision(a, b, layer + 1)
-    for i in seedBag:
-        if abs(i[1] - out) <= 64 and 1000 - i[0] < 128:
-            return noCollision(a, b, layer + 1)
-    return out
+    if treeBush:
+        outx = random.randint(xa, xb)
+        for i in treeBushPos:
+            # outx=(random.randint(xa,xb))
+            # if abs(i[0]-outx) <= 300 and abs(i[1]-out) <= 150:
+            # print(i[0],i[1],outx,out)
+            if Rect(i[0],i[1],100,100).colliderect(Rect(outx,out,100,100)):
+                return noCollision(a,b,layer+1,treeBush=treeBush,xa=xa,xb=xb)
+        return [outx,out]
+    else:
+        for i in pests:
+            # if (i[1] <= out <= i[1]+64 or out<=i[1]<=out+64) and 1000-i[0]<128:
+            if abs(i[1] - out) <= 64 and 1000 - i[0] < 128:
+                return noCollision(a, b, layer + 1)
+        for i in seedBag:
+            if abs(i[1] - out) <= 64 and 1000 - i[0] < 128:
+                return noCollision(a, b, layer + 1)
+        return out
 
+for i in range(random.randint(3, 6)):
+    treePOS = noCollision(100,500,0,treeBush=True,xa=210,xb=800)
+    if treePOS!=False:
+        treeBushPos.append([treePOS[0],treePOS[1],random.choice(listOfTreeBush)])
+# print(treeBushPos)
+
+def drawTreeBush():
+    for i in treeBushPos:
+        if not isPaused:
+            drawAnimated(i[2],(i[0],i[1]),aScale=2)
+        else:
+            drawImg(str(i[2]) + "4.png", (i[0], i[1]), aScale=2)
 
 def updateEnemy():
     global health
@@ -569,7 +602,7 @@ def game():
         gameInit()
     escapeReturn = 0
     screen.fill(treeGreen)
-    gameHUD()
+    drawImg("Assets/BackgroundSmall/BackgroundMoreGreenSmall.jpg", (0,0))
     moveDrawCharacter()
     shoot()
     readWriteTopScore()
@@ -587,7 +620,8 @@ def game():
         isPaused = True
         # pages = 0  # temporary placeholder
     seedBagBuff()
-
+    drawTreeBush()
+    gameHUD()
 
 def gameOver():
     global gameMoveUp, gameMoveDown, gameMoveForward, gameMoveBack

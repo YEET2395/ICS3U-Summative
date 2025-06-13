@@ -173,7 +173,7 @@ difficultyRead.close()
 keyBindRead = open("Data/keyBind.txt", "r")
 listOfKeys = list(keyBindRead.readline().split(","))
 keyBindRead.close()
-# print(listOfKeys)\
+# print(listOfKeys)
 
 # Set the key binds
 movePlayerUp = listOfKeys[0]
